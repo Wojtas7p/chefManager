@@ -2,12 +2,13 @@
 
 Architektóra:
 
-  EngineeringThesis/
+  Engineering thesis/
 │
 ├── README.md
 ├── .gitignore
 ├── docs/                   # dokumentacja, notatki, diagramy
-│
+│   └── .env
+|
 ├── frontend/               # front-end (np. React, Vue, Angular)
 │   ├── package.json
 │   ├── public/
