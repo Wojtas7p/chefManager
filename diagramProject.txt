@@ -1,0 +1,35 @@
+
+
+Architektóra:
+
+  Engineering thesis/
+│
+├── README.md
+├── .gitignore
+├── docs/                   # dokumentacja, notatki, diagramy
+│   └── .env
+|
+├── frontend/               # front-end (np. React, Vue, Angular)
+│   ├── package.json
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── services/      # np. do pobierania danych z back-endu
+│       └── assets/
+│
+├── backend/                # back-end (np. Node.js/Express, Python Flask)
+│   ├── package.json
+│   ├── server.js / app.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── models/             # modele MongoDB
+│   ├── services/           # logika pobierania API zewnętrznych
+│   ├── config/             # konfiguracja (MongoDB URI, API keys)
+│   └── utils/              # helpery, np. do obsługi błędów
+│
+├── database/               # np. skrypty MongoDB, backup, seed
+│
+└── scripts/                # narzędzia developerskie (build, deploy)
+
+
