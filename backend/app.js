@@ -1,19 +1,34 @@
-
-require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const auth = require('./middleware/auth');
+
+dotenv.config();
+
 const app = express();
-const connectDB = require('./config/db');
 
-
-// Połączenie z MongoDB
-connectDB();
-
+// middleware
+app.use(cors());
 app.use(express.json());
 
-// trasy
-app.use('/items', require('./routes/items'));
+// routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/suppliers', auth, require('./routes/suppliers'));
+app.use('/api/products', auth, require('./routes/products'));
 
+
+
+// DB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error(err));
+
+  // SERVER
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Serwer działa na porcie ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`Serwer działa na porcie ${PORT}`)
+);
+
+
+
