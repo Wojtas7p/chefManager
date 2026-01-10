@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>ChefManager</title>
+</head>
+<body>
+  <h1>Lista elementów</h1>
+
+  <ul id="items"></ul>
+
+  <input type="text" id="itemName" placeholder="Nazwa" />
+  <button onclick="addItem()">Dodaj</button>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api/items';
+
+    async function loadItems() {
+      const res = await fetch(API_URL);
+      const items = await res.json();
+
+      const list = document.getElementById('items');
+      list.innerHTML = '';
+
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item.name;
+        list.appendChild(li);
+      });
+    }
+
+    async function addItem() {
+      const name = document.getElementById('itemName').value;
+
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+
+      document.getElementById('itemName').value = '';
+      loadItems();
+    }
+
+    loadItems();
+  </script>
+</body>
+</html>
