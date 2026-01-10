@@ -1,48 +1,145 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <title>ChefManager</title>
+  <meta charset="UTF-8">
+  <title>ChefManager - Login</title>
 </head>
 <body>
-  <h1>Lista elementów</h1>
+  <h1>ChefManager</h1>
 
-  <ul id="items"></ul>
+  <!-- REJESTRACJA -->
+  <h2>Rejestracja</h2>
+  <input id="regLogin" placeholder="Login" />
+  <input id="regPassword" type="password" placeholder="Hasło" />
+  <button onclick="register()">Zarejestruj</button>
 
-  <input type="text" id="itemName" placeholder="Nazwa" />
-  <button onclick="addItem()">Dodaj</button>
+  <!-- LOGOWANIE -->
+  <h2>Logowanie</h2>
+  <input id="loginLogin" placeholder="Login" />
+  <input id="loginPassword" type="password" placeholder="Hasło" />
+  <button onclick="login()">Zaloguj</button>
 
-  <script>
-    const API_URL = 'http://localhost:3000/api/items';
+  <hr/>
 
-    async function loadItems() {
-      const res = await fetch(API_URL);
-      const items = await res.json();
+  <!-- DOSTAWCY -->
+  <h2>Dostawcy</h2>
+  <input id="supplierName" placeholder="Nazwa dostawcy" />
+  <button onclick="addSupplier()">Dodaj dostawcę</button>
+  <ul id="suppliers"></ul>
 
-      const list = document.getElementById('items');
-      list.innerHTML = '';
+  <!-- PRODUKTY -->
+  <h2>Produkty</h2>
+  <input id="productName" placeholder="Nazwa produktu" />
+  <button onclick="addProduct()">Dodaj produkt</button>
+  <ul id="products"></ul>
 
-      items.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item.name;
-        list.appendChild(li);
-      });
-    }
+<script>
+const API = 'http://localhost:3000/api';
+let token = null;
+let currentSupplierId = null;
 
-    async function addItem() {
-      const name = document.getElementById('itemName').value;
+// ================== REJESTRACJA ==================
+async function register() {
+  const login = document.getElementById('regLogin').value;
+  const password = document.getElementById('regPassword').value;
 
-      await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
+  await fetch(`${API}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ login, password })
+  });
+  alert('Zarejestrowano! Teraz się zaloguj.');
+}
 
-      document.getElementById('itemName').value = '';
-      loadItems();
-    }
+// ================== LOGOWANIE ==================
+async function login() {
+  const loginVal = document.getElementById('loginLogin').value;
+  const password = document.getElementById('loginPassword').value;
 
-    loadItems();
-  </script>
+  const res = await fetch(`${API}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ login: loginVal, password })
+  });
+
+  const data = await res.json();
+  if (data.token) {
+    token = data.token;
+    alert('Zalogowano!');
+    loadSuppliers();
+  } else {
+    alert('Błąd logowania');
+  }
+}
+
+// ================== DOSTAWCY ==================
+async function loadSuppliers() {
+  const res = await fetch(`${API}/suppliers`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const suppliers = await res.json();
+
+  const ul = document.getElementById('suppliers');
+  ul.innerHTML = '';
+
+  suppliers.forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s.name;
+    li.onclick = () => selectSupplier(s._id);
+    ul.appendChild(li);
+  });
+}
+
+async function addSupplier() {
+  const name = document.getElementById('supplierName').value;
+  await fetch(`${API}/suppliers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ name })
+  });
+  loadSuppliers();
+}
+
+function selectSupplier(id) {
+  currentSupplierId = id;
+  loadProducts();
+}
+
+// ================== PRODUKTY ==================
+async function loadProducts() {
+  const res = await fetch(`${API}/products/${currentSupplierId}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const products = await res.json();
+
+  const ul = document.getElementById('products');
+  ul.innerHTML = '';
+
+  products.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = p.name;
+    ul.appendChild(li);
+  });
+}
+
+async function addProduct() {
+  if (!currentSupplierId) return alert('Wybierz dostawcę');
+  const name = document.getElementById('productName').value;
+
+  await fetch(`${API}/products`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ name, supplierId: currentSupplierId })
+  });
+  loadProducts();
+}
+</script>
 </body>
 </html>
+
