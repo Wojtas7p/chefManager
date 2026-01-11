@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const SupplierSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  user: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
@@ -10,5 +10,3 @@ const SupplierSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Supplier', SupplierSchema);
-
-
