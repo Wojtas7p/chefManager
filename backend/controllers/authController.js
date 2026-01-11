@@ -1,51 +1,48 @@
-// const User = require('../models/User');
-// const bcrypt = require('bcryptjs'); 
-// const jwt = require('jsonwebtoken');
-
-// exports.register = async (req, res) => {
-//   const hashed = await bcrypt.hash(req.body.password, 10);
-//   const user = new User({
-//     login: req.body.login,
-//     password: hashed
-//   });
-//   await user.save();
-//   res.status(201).json({ message: 'User created' });
-// };
-
-// exports.login = async (req, res) => {
-//   const user = await User.findOne({ login: req.body.login });
-//   if (!user) return res.status(401).json({ error: 'Błąd logowania' });
-
-//   const ok = await bcrypt.compare(req.body.password, user.password);
-//   if (!ok) return res.status(401).json({ error: 'Błąd logowania' });
-
-//   const token = jwt.sign(
-//     { userId: user._id },
-//     process.env.JWT_SECRET,
-//     { expiresIn: '1d' }
-//   );
-
-//   res.json({ token });
-// };
-
-
 
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-  const hashed = await bcrypt.hash(req.body.password, 10);
+  try {
+    const { login, password, name } = req.body;
 
-  const user = new User({
-    login: req.body.login,
-    password: hashed,
-    role: 'ADMIN',
-    permissions: { canAddSuppliers: true, canAddProducts: true, readOnly: false }
-  });
+    if (!login || !password || !name) {
+      return res.status(400).json({ error: 'Brak danych' });
+    }
 
-  await user.save();
-  res.status(201).json({ message: 'User created' });
+    // login globalnie unikalny
+    const existsLogin = await User.findOne({ login });
+    if (existsLogin) {
+      return res.status(400).json({ error: 'Login już istnieje' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    // tworzymy admina
+    const user = new User({
+      login,
+      name,
+      password: hashed,
+      role: 'ADMIN',
+      owner: null,
+      permissions: {
+        canAddSuppliers: true,
+        canAddProducts: true,
+        readOnly: false
+      }
+    });
+
+    await user.save();
+
+    // owner = własne konto
+    user.owner = user._id;
+    await user.save();
+
+    res.status(201).json({ message: 'Admin zarejestrowany' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.login = async (req, res) => {
@@ -58,9 +55,10 @@ exports.login = async (req, res) => {
   const token = jwt.sign(
     {
       userId: user._id,
+      owner: user.owner,
       role: user.role,
       permissions: user.permissions,
-      owner: user.owner || user._id
+      name: user.name // 👈 do frontu
     },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }

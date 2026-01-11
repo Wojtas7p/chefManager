@@ -9,6 +9,7 @@
 
   <!-- REJESTRACJA -->
   <h2>Rejestracja</h2>
+  <input id="regName" placeholder="Imię / nazwa" />
   <input id="regLogin" placeholder="Login" />
   <input id="regPassword" type="password" placeholder="Hasło" />
   <button onclick="register()">Zarejestruj</button>
@@ -20,6 +21,12 @@
   <button onclick="login()">Zaloguj</button>
 
   <hr/>
+
+  <h2>Użytkownicy konta</h2>
+<ul id="usersList"></ul>
+
+
+<hr/>
 
   <!-- DOSTAWCY -->
   <h2>Dostawcy</h2>
@@ -34,9 +41,10 @@
   <ul id="products"></ul>
 
 
-  <!--  -->
+<!-- DODAJ USERA -->
 
   <h2>Admin – Dodaj użytkownika</h2>
+<input id="uName" placeholder="Imię / nazwa użytkownika" />
 <input id="uLogin" placeholder="Login">
 <input id="uPass" placeholder="Hasło">
 <label><input type="checkbox" id="pSup"> Dodawanie dostawców</label>
@@ -44,7 +52,7 @@
 <label><input type="checkbox" id="pRead"> Tylko podgląd</label>
 <button onclick="addUser()">Dodaj użytkownika</button>
 
-<!--  -->
+
 
 <script>
 const API = 'http://localhost:3000/api';
@@ -52,19 +60,24 @@ let token = null;
 let currentSupplierId = null;
 
 // ================== REJESTRACJA ==================
-async function register() {
-  const login = document.getElementById('regLogin').value;
-  const password = document.getElementById('regPassword').value;
 
+async function register() {
   await fetch(`${API}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ login, password })
+    body: JSON.stringify({
+      login: regLogin.value,
+      password: regPassword.value,
+      name: regName.value
+    })
   });
-  alert('Zarejestrowano! Teraz się zaloguj.');
+
+  alert('Zarejestrowano – zaloguj się');
 }
 
+
 // ================== LOGOWANIE ==================
+
 async function login() {
   const loginVal = document.getElementById('loginLogin').value;
   const password = document.getElementById('loginPassword').value;
@@ -80,12 +93,14 @@ async function login() {
     token = data.token;
     alert('Zalogowano!');
     loadSuppliers();
+    loadUsers();
   } else {
     alert('Błąd logowania');
   }
 }
 
 // ================== DOSTAWCY ==================
+
 async function loadSuppliers() {
   const res = await fetch(`${API}/suppliers`, {
     headers: { 'Authorization': `Bearer ${token}` }
@@ -122,6 +137,7 @@ function selectSupplier(id) {
 }
 
 // ================== PRODUKTY ==================
+
 async function loadProducts() {
   const res = await fetch(`${API}/products/${currentSupplierId}`, {
     headers: { 'Authorization': `Bearer ${token}` }
@@ -153,18 +169,19 @@ async function addProduct() {
   loadProducts();
 }
 
-// 
+//======================= USER =======================
 
 async function addUser() {
   const res = await fetch(`${API}/users`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
       login: uLogin.value,
       password: uPass.value,
+      name: uName.value,
       permissions: {
         canAddSuppliers: pSup.checked,
         canAddProducts: pProd.checked,
@@ -174,14 +191,37 @@ async function addUser() {
   });
 
   if (!res.ok) {
-    alert('Brak uprawnień admina');
+    alert('Błąd dodawania użytkownika');
     return;
   }
 
-  alert('Użytkownik dodany!');
+  alert('Użytkownik dodany');
 }
 
-// 
+
+async function loadUsers() {
+  if (!token) return alert('Zaloguj się najpierw');
+
+  const res = await fetch(`${API}/users`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (!res.ok) return alert('Błąd pobierania użytkowników');
+
+  const users = await res.json();
+
+  const ul = document.getElementById('usersList');
+  ul.innerHTML = '';
+
+  users.forEach(u => {
+    const li = document.createElement('li');
+    // li.textContent = `${u.name} (${u.role})`; // pokazujemy po name
+    li.textContent = `${u.name} (${u.role}) - ${u.permissions.readOnly ? 'tylko podgląd' : 'pełne uprawnienia'})`;
+    ul.appendChild(li);
+  });
+
+}
+
 
 
 </script>
