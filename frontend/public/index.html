@@ -33,6 +33,19 @@
   <button onclick="addProduct()">Dodaj produkt</button>
   <ul id="products"></ul>
 
+
+  <!--  -->
+
+  <h2>Admin – Dodaj użytkownika</h2>
+<input id="uLogin" placeholder="Login">
+<input id="uPass" placeholder="Hasło">
+<label><input type="checkbox" id="pSup"> Dodawanie dostawców</label>
+<label><input type="checkbox" id="pProd"> Dodawanie produktów</label>
+<label><input type="checkbox" id="pRead"> Tylko podgląd</label>
+<button onclick="addUser()">Dodaj użytkownika</button>
+
+<!--  -->
+
 <script>
 const API = 'http://localhost:3000/api';
 let token = null;
@@ -139,6 +152,38 @@ async function addProduct() {
   });
   loadProducts();
 }
+
+// 
+
+async function addUser() {
+  const res = await fetch(`${API}/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      login: uLogin.value,
+      password: uPass.value,
+      permissions: {
+        canAddSuppliers: pSup.checked,
+        canAddProducts: pProd.checked,
+        readOnly: pRead.checked
+      }
+    })
+  });
+
+  if (!res.ok) {
+    alert('Brak uprawnień admina');
+    return;
+  }
+
+  alert('Użytkownik dodany!');
+}
+
+// 
+
+
 </script>
 </body>
 </html>
