@@ -7,10 +7,11 @@ const UserSchema = new mongoose.Schema({
   role: { type: String, default: 'ADMIN' }, // ADMIN / USER
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   permissions: {
-    canAddSuppliers: { type: Boolean, default: true },
-    canAddProducts: { type: Boolean, default: true },
-    readOnly: { type: Boolean, default: false }
-  }
+  canAddSuppliers: { type: Boolean, default: false },
+  canAddProducts: { type: Boolean, default: false },
+  readOnly: { type: Boolean, default: true },
+  canManageSchedule: { type: Boolean, default: false }
+}
 });
 
 module.exports = mongoose.model('User', UserSchema);

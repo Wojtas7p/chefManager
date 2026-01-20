@@ -1,3 +1,7 @@
+FRONTEND:
+==============
+
+
 frontend/public/index.html:
 <!DOCTYPE html>
 <html lang="pl">
@@ -146,6 +150,21 @@ async function addProduct() {
 
 
 
+
+
+
+
+
+
+
+BACKEND:
+===============
+
+
+
+
+
+
 config/db.js
 ------------------------------------------------------------
 
@@ -231,6 +250,54 @@ exports.login = async (req, res) => {
 
 
 
+controllers/chatController.js
+------------------------------------------------------------
+
+const Message = require('../models/Message');
+
+/**
+ * get message
+ */
+exports.getMessages = async (req, res) => {
+  const { receiverId } = req.query;
+
+  const filter = {
+    owner: req.ownerId
+  };
+
+  if (receiverId) {
+    filter.$or = [
+      { sender: req.userId, receiver: receiverId },
+      { sender: receiverId, receiver: req.userId }
+    ];
+  } else {
+    filter.receiver = null; 
+  }
+
+  const messages = await Message.find(filter)
+    .populate('sender', 'name')
+    .sort({ createdAt: 1 });
+
+  res.json(messages);
+};
+
+/**
+ * Send message
+ */
+exports.sendMessage = async (req, res) => {
+  const { text, receiverId } = req.body;
+
+  const message = new Message({
+    owner: req.ownerId,
+    sender: req.userId,
+    receiver: receiverId || null,
+    text
+  });
+
+  await message.save();
+  res.status(201).json(message);
+};
+
 
 
 
@@ -259,6 +326,44 @@ exports.createProduct = async (req, res) => {
 
 
 
+controllers/scheduleController.js
+----------------------------------------------------
+
+
+const Schedule = require('../models/Schedule');
+const TimeOff = require('../models/TimeOff');
+
+
+exports.saveSchedule = async (req, res) => {
+  const { month, users } = req.body;
+
+  const schedule = await Schedule.findOneAndUpdate(
+    { owner: req.ownerId, month },
+    { users },
+    { upsert: true, new: true }
+  ).populate('users.user', 'name');
+
+  res.json(schedule);
+};
+
+
+exports.getSchedule = async (req, res) => {
+  const { month } = req.query;
+
+  const schedule = await Schedule.findOne({
+    owner: req.ownerId,
+    month
+  }).populate('users.user', 'name');
+
+  if (!schedule) return res.json(null);
+
+  const timeOffs = await TimeOff.find({
+    owner: req.ownerId
+  });
+
+  res.json({ schedule, timeOffs });
+};
+
 
 
 controllers/suppliersController.js
@@ -280,6 +385,121 @@ exports.createSupplier = async (req, res) => {
   await supplier.save();
   res.status(201).json(supplier);
 };
+
+
+
+
+controllers/timeOffController.js
+-------------------------------------------------------
+
+
+const TimeOff = require('../models/TimeOff');
+
+
+exports.saveTimeOff = async (req, res) => {
+  const { userId, from, to, type } = req.body;
+
+  const timeOff = new TimeOff({
+    owner: req.ownerId,
+    user: userId,
+    from,
+    to,
+    type // 'VACATION' | 'DAY_OFF'
+  });
+
+  await timeOff.save();
+  res.status(201).json(timeOff);
+};
+
+exports.requestTimeOff = async (req, res) => {
+  const { from, to, type, note } = req.body;
+
+  const off = new TimeOff({
+    owner: req.ownerId,
+    user: req.userId,
+    from,
+    to,
+    type,
+    note
+  });
+
+  await off.save();
+  res.status(201).json(off);
+};
+
+exports.getMyTimeOff = async (req, res) => {
+  const offs = await TimeOff.find({
+    owner: req.ownerId,
+    user: req.userId
+  });
+
+  res.json(offs);
+};
+
+
+
+
+controllers/usersController.js
+-----------------------------------------------
+
+
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+
+exports.createUser = async (req, res) => {
+  if (req.userRole !== 'ADMIN') {
+    return res.status(403).json({ error: 'Tylko admin' });
+  }
+
+  const { login, password, name, permissions } = req.body;
+
+  if (!login || !password || !name) {
+    return res.status(400).json({ error: 'Brak danych' });
+  }
+
+  // global login 
+  const existsLogin = await User.findOne({ login });
+  if (existsLogin) {
+    return res.status(400).json({ error: 'Login już istnieje' });
+  }
+
+  // kont name 
+  const existsName = await User.findOne({
+    owner: req.ownerId,
+    name
+  });
+
+  if (existsName) {
+    return res.status(400).json({ error: 'Nazwa użytkownika już istnieje w tym koncie' });
+  }
+
+  const hashed = await bcrypt.hash(password, 10);
+
+   const user = new User({
+  login: req.body.login,
+  password: hashed,
+  role: 'USER',
+  owner: req.ownerId,
+  name: req.body.name,
+
+  permissions: {
+    canAddSuppliers: req.body.permissions?.canAddSuppliers || false,
+    canAddProducts: req.body.permissions?.canAddProducts || false,
+    readOnly: req.body.permissions?.readOnly || true,
+    canManageSchedule: req.body.permissions?.canManageSchedule || false
+  }
+});
+
+
+  await user.save();
+  res.status(201).json({ message: 'Użytkownik dodany' });
+};
+
+exports.getUsers = async (req, res) => {
+  const users = await User.find({ owner: req.ownerId }).select('-password');
+  res.json(users);
+};
+
 
 
 
@@ -310,6 +530,46 @@ module.exports = (req, res, next) => {
 
 
 
+models/Massage.js
+----------------------------------------------
+
+
+const mongoose = require('mongoose');
+
+const MessageSchema = new mongoose.Schema(
+  {
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    receiver: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null // null = groupe message
+    },
+
+    text: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Message', MessageSchema);
+
+
+
+
 
 models/Product.js
 ----------------------------------------------
@@ -335,6 +595,36 @@ module.exports = mongoose.model('Product', ProductSchema);
 
 
 
+models/Shedule.js
+-----------------------------------------------------
+
+
+const mongoose = require('mongoose');
+
+
+const ScheduleSchema = new mongoose.Schema({
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  month: { type: String, required: true }, // np. '2026-01'
+  users: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      days: [
+        {
+          day: Number, // 1-31
+          startHour: String, // np. '08:00'
+          endHour: String // np. '16:00'
+        }
+      ]
+    }
+  ]
+}, { timestamps: true });
+
+
+module.exports = mongoose.model('Schedule', ScheduleSchema);
+
+
+
+
 
 models/Supplier.js
 -----------------------------------------------------
@@ -354,6 +644,46 @@ module.exports = mongoose.model('Supplier', SupplierSchema);
 
 
 
+models/TimeOff.js
+-----------------------------------------------------
+
+
+const mongoose = require('mongoose');
+
+const TimeOffSchema = new mongoose.Schema(
+  {
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    type: {
+      type: String,
+      enum: ['DAY_OFF', 'VACATION'],
+      required: true
+    },
+
+    from: { type: Date, required: true },
+    to: { type: Date, required: true },
+
+    note: { type: String }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('TimeOff', TimeOffSchema);
+
+
+
+
+
 models/User.js
 -------------------------------------------------
 
@@ -361,14 +691,16 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   login: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, default: 'ADMIN' }, // ADMIN / USER
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   permissions: {
-    canAddSuppliers: { type: Boolean, default: true },
-    canAddProducts: { type: Boolean, default: true },
-    readOnly: { type: Boolean, default: false }
-  }
+  canAddSuppliers: { type: Boolean, default: false },
+  canAddProducts: { type: Boolean, default: false },
+  readOnly: { type: Boolean, default: true },
+  canManageSchedule: { type: Boolean, default: false }
+}
 });
 
 module.exports = mongoose.model('User', UserSchema);
@@ -390,6 +722,22 @@ module.exports = router;
 
 
 
+outes/chat.js
+--------------------------------------------------
+
+
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const { getMessages, sendMessage } = require('../controllers/chatController');
+
+router.get('/', auth, getMessages);
+router.post('/', auth, sendMessage);
+
+module.exports = router;
+
+
+
+
 routes/products.js
 ----------------------------------------------------
 
@@ -404,10 +752,26 @@ module.exports = router;
 
 
 
+routes/schedule.js
+----------------------------------------------------
+
+
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const perm = require('../middleware/schedulePermission');
+const { saveSchedule, getSchedule } = require('../controllers/scheduleController');
+
+router.post('/', auth, perm, saveSchedule);
+router.get('/', auth, getSchedule);
+
+module.exports = router;
+
+
 
 
 routes/supplier.js
 -------------------------------------------------
+
 
 const router = require('express').Router();
 const auth = require('../middleware/auth');
@@ -421,8 +785,31 @@ module.exports = router;
 
 
 
-routes/supplier.js
+
+routes/timeOff.js
 --------------------------------------------------
+
+
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const {
+  requestTimeOff,
+  getMyTimeOff,
+  saveTimeOff
+} = require('../controllers/timeOffController');
+
+router.post('/request', auth, requestTimeOff); // user
+router.get('/me', auth, getMyTimeOff);          // user
+router.post('/admin', auth, saveTimeOff);      // admin
+
+module.exports = router;
+
+
+
+
+routes/timeOff.js
+--------------------------------------------------
+
 
 const router = require('express').Router();
 const auth = require('../middleware/auth');
@@ -431,14 +818,16 @@ const { createUser, getUsers } = require('../controllers/usersController');
 router.post('/', auth, createUser);
 router.get('/', auth, getUsers);
 
+
 module.exports = router;
+
+
 
 
 
 
 app.js 
 ---------------------------------------------------
-
 
 
 const express = require('express');
@@ -457,6 +846,11 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/suppliers', require('./routes/suppliers'));
 app.use('/api/products', require('./routes/products'));
+app.use('/api/chat', require('./routes/chat'));
+app.use('/api/schedule', require('./routes/schedule'));
+app.use('/api/timeoff', require('./routes/timeOff'));
+
+
 
 // DB
 mongoose.connect(process.env.MONGO_URI)
