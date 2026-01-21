@@ -13,13 +13,13 @@ exports.createUser = async (req, res) => {
     return res.status(400).json({ error: 'Brak danych' });
   }
 
-  // login globalnie unikalny
+  // global login 
   const existsLogin = await User.findOne({ login });
   if (existsLogin) {
     return res.status(400).json({ error: 'Login już istnieje' });
   }
 
-  // name unikalne W RAMACH KONTA
+  // kont name 
   const existsName = await User.findOne({
     owner: req.ownerId,
     name
@@ -31,14 +31,21 @@ exports.createUser = async (req, res) => {
 
   const hashed = await bcrypt.hash(password, 10);
 
-  const user = new User({
-    login,
-    name,
-    password: hashed,
-    role: 'USER',
-    owner: req.ownerId,
-    permissions
-  });
+   const user = new User({
+  login: req.body.login,
+  password: hashed,
+  role: 'USER',
+  owner: req.ownerId,
+  name: req.body.name,
+
+  permissions: {
+    canAddSuppliers: req.body.permissions?.canAddSuppliers || false,
+    canAddProducts: req.body.permissions?.canAddProducts || false,
+    readOnly: req.body.permissions?.readOnly || true,
+    canManageSchedule: req.body.permissions?.canManageSchedule || false
+  }
+});
+
 
   await user.save();
   res.status(201).json({ message: 'Użytkownik dodany' });

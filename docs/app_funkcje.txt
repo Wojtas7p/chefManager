@@ -1,0 +1,38 @@
+Aplikacja ,,flowgastro.com'' przeznaczona dla menagerów, szefów kuchni, pracowników restauracji, hoteli.
+
+Funkcjonalność:
+
+1. Profil menagera, szefa kuchni:
+- Dodawanie pracowników, współpracowników,
+- Przydzielanie uprawnień i ról dostepu,
+- Czat Pracowniczy,
+- Informacje o iwentach, imprezach integracyjnych, 
+- Informacje o urodzinach pracowników, 
+- Listy produkcyjne,
+- Dodawanie notatek, informacji, zdjęć, gróp
+- Check listy,owych i prywatnych
+- Grafiki sprzatania
+
+2. Zażądzanie i tworzenie grafików:
+- Logowanie, wylogowywanie z pracy,
+- Umieszczanie próźb o wolne i urlopy,
+
+3. Zarządzanie dostawami:
+- Tworzenie listy zakupów po przez dodawanie dostawców i produktów,
+- Zarządzanie magazynem dostaw, produktami
+- Składanie zamówień mową ? 
+
+4. Zamówienia od gości:
+- Tworzenie menu i ofert dla gości, 
+- Rejestr i zliczanie zamówień, 
+- Zamawianie mową, 
+
+5. Panel ogólny całego portalu:
+- dodawanie przepisów, zdjęć przez uzytkowników portalu,
+- polubianie przepisów i rejestr wejść 
+
+6. 
+
+7. Dodatkowe:
+- Instrukcja obsłógi 
+- Rejestrowanie liczby wejść przez potencjalnych uczestników

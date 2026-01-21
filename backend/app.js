@@ -16,6 +16,11 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/suppliers', require('./routes/suppliers'));
 app.use('/api/products', require('./routes/products'));
+app.use('/api/chat', require('./routes/chat'));
+app.use('/api/schedule', require('./routes/schedule'));
+app.use('/api/timeoff', require('./routes/timeOff'));
+
+
 
 // DB
 mongoose.connect(process.env.MONGO_URI)

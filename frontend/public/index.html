@@ -5,7 +5,10 @@
   <title>ChefManager - Login</title>
 </head>
 <body>
-  <h1>ChefManager</h1>
+  <h1>flowgastro.com</h1>
+  <h2>lub</h2>
+  <h1>workflowgastro.com</h1>
+   <h1>(remote management, SaaS, mobile-first)</h1>
 
   <!-- REJESTRACJA -->
   <h2>Rejestracja</h2>
@@ -50,8 +53,73 @@
 <label><input type="checkbox" id="pSup"> Dodawanie dostawców</label>
 <label><input type="checkbox" id="pProd"> Dodawanie produktów</label>
 <label><input type="checkbox" id="pRead"> Tylko podgląd</label>
+<label><input type="checkbox" id="pSchedule"> Może tworzyć grafik</label>
+
 <button onclick="addUser()">Dodaj użytkownika</button>
 
+
+<!--  CHAT -->
+
+
+<h2>Czat</h2>
+
+<select id="chatTarget">
+  <option value="">Czat grupowy</option>
+</select>
+
+<div id="chatBox" style="border:1px solid #ccc;height:300px;overflow:auto;"></div>
+
+<input id="chatInput" placeholder="Napisz wiadomość..." />
+<button onclick="sendMessage()">Wyślij</button>
+
+
+<select id="chatTarget" onchange="loadMessages()">
+
+<!-- Plan table -->
+
+<hr/>
+
+<h2>Grafik pracy</h2>
+
+<label>Miesiąc:</label>
+<input type="month" id="scheduleMonth" />
+
+<button onclick="loadSchedule()">Pokaż grafik</button>
+
+<h3>Utwórz / nadpisz grafik</h3>
+
+<div id="scheduleUsers"></div>
+
+<button onclick="saveSchedule()">Zapisz grafik</button>
+
+<h3>Podgląd</h3>
+<div id="scheduleView"></div>
+
+<!-- Days off -->
+
+ <hr/>
+<h2>Zgłoś urlop / wolne</h2>
+
+<select id="offType">
+  <option value="DAY_OFF">Dzień wolny</option>
+  <option value="VACATION">Urlop</option>
+</select>
+
+<input type="date" id="offFrom" />
+<input type="date" id="offTo" />
+
+<button onclick="requestTimeOff()">Zgłoś</button>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 
 <script>
@@ -92,8 +160,23 @@ async function login() {
   if (data.token) {
     token = data.token;
     alert('Zalogowano!');
-    loadSuppliers();
-    loadUsers();
+    //==========================================
+
+     if (!data.permissions?.canManageSchedule && data.role !== 'ADMIN') {
+  document.querySelectorAll('h2').forEach(h2 => {
+    if (h2.textContent.includes('Grafik')) h2.remove();
+  });
+}
+
+    //============================================
+    
+   loadSuppliers();
+loadUsers();
+loadChatUsers();
+loadMessages();
+loadScheduleUsers();
+
+
   } else {
     alert('Błąd logowania');
   }
@@ -178,16 +261,18 @@ async function addUser() {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({
-      login: uLogin.value,
-      password: uPass.value,
-      name: uName.value,
-      permissions: {
-        canAddSuppliers: pSup.checked,
-        canAddProducts: pProd.checked,
-        readOnly: pRead.checked
-      }
-    })
+  body: JSON.stringify({
+  login: uLogin.value,
+  password: uPass.value,
+  name: uName.value,
+  permissions: {
+    canAddSuppliers: pSup.checked,
+    canAddProducts: pProd.checked,
+    readOnly: pRead.checked,
+    canManageSchedule: pSchedule.checked // ⬅️ TU
+  }
+})
+
   });
 
   if (!res.ok) {
@@ -223,6 +308,252 @@ async function loadUsers() {
 }
 
 
+// ============================ CHAT ====================================== //
+
+async function loadChatUsers() {
+   if (!token) return;
+  const res = await fetch(`${API}/users`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const users = await res.json();
+  const select = document.getElementById('chatTarget');
+
+  users.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u._id;
+    opt.textContent = u.name;
+    select.appendChild(opt);
+  });
+}
+
+//  pobieranie //
+
+async function loadMessages() {
+   if (!token) return;
+  const receiverId = document.getElementById('chatTarget').value;
+  const url = receiverId
+    ? `${API}/chat?receiverId=${receiverId}`
+    : `${API}/chat`;
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const messages = await res.json();
+  const box = document.getElementById('chatBox');
+  box.innerHTML = '';
+
+  messages.forEach(m => {
+    const div = document.createElement('div');
+    div.textContent = `${m.sender.name}: ${m.text}`;
+    box.appendChild(div);
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+ //wysyłanie //
+
+ async function sendMessage() {
+   if (!token) return alert('Zaloguj się');
+  const text = document.getElementById('chatInput').value;
+  const receiverId = document.getElementById('chatTarget').value || null;
+
+  await fetch(`${API}/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ text, receiverId })
+  });
+
+  document.getElementById('chatInput').value = '';
+  loadMessages();
+}
+
+// Days Off
+
+
+
+// Get Plan Table
+
+
+async function requestTimeOff() {
+  await fetch(`${API}/timeoff`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      type: offType.value,
+      from: offFrom.value,
+      to: offTo.value
+    })
+  });
+
+  alert('Zgłoszenie zapisane');
+}
+
+
+// Obiekt do przechowywania tymczasowego grafiku przed wysłaniem
+let tempSchedule = {};
+
+// Po zaznaczeniu użytkownika generujemy pola dni
+function handleUserCheckbox(e) {
+  const userId = e.target.value;
+  const container = document.getElementById('userDaysContainer_' + userId);
+
+  if (e.target.checked) {
+    // Usuń jeśli już istnieje
+    if (container) container.remove();
+
+    // Pobierz wybrany miesiąc
+    const monthInput = document.getElementById('scheduleMonth').value;
+    if (!monthInput) return alert('Wybierz miesiąc najpierw');
+
+    const [year, month] = monthInput.split('-');
+    const daysInMonth = new Date(year, month, 0).getDate(); // np. 28/30/31 dni
+
+    // Stwórz kontener dla dni
+    const div = document.createElement('div');
+    div.id = 'userDaysContainer_' + userId;
+    div.innerHTML = `<strong>Dni pracy dla ${e.target.parentNode.textContent.trim()}:</strong><br/>`;
+
+    // Inicjalizuj w tempSchedule
+    tempSchedule[userId] = [];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayDiv = document.createElement('div');
+      dayDiv.style.marginBottom = '2px';
+      dayDiv.innerHTML = `
+        <label>Dzień ${d}:</label>
+        <input type="time" placeholder="Start" data-day="${d}" class="startHour" />
+        <input type="time" placeholder="Koniec" data-day="${d}" class="endHour" />
+      `;
+      div.appendChild(dayDiv);
+    }
+
+    e.target.parentNode.appendChild(div);
+  } else {
+    // Usuń pola dni jeśli odznaczono użytkownika
+    if (container) container.remove();
+    delete tempSchedule[userId];
+  }
+}
+ 
+async function loadScheduleUsers() {
+  const res = await fetch(`${API}/users`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const users = await res.json();
+  const box = document.getElementById('scheduleUsers');
+  box.innerHTML = '';
+
+  users.forEach(u => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" value="${u._id}" onchange="handleUserCheckbox(event)">
+        ${u.name}
+      </label>
+    `;
+    box.appendChild(div);
+  });
+}
+
+async function saveSchedule() {
+  const month = document.getElementById('scheduleMonth').value;
+  if (!month) return alert('Wybierz miesiąc');
+
+  const users = [];
+
+  document.querySelectorAll('#scheduleUsers input:checked').forEach(checkbox => {
+    const userId = checkbox.value;
+    const days = [];
+
+    const container = document.getElementById('userDaysContainer_' + userId);
+    if (container) {
+      container.querySelectorAll('div').forEach(dayDiv => {
+        const start = dayDiv.querySelector('.startHour').value;
+        const end = dayDiv.querySelector('.endHour').value;
+        const day = parseInt(dayDiv.querySelector('.startHour').dataset.day);
+
+        days.push({ day, startHour: start, endHour: end });
+      });
+    }
+
+    users.push({ user: userId, days });
+  });
+
+  await fetch(`${API}/schedule`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ month, users })
+  });
+
+  alert('Grafik zapisany');
+}
+
+
+async function loadSchedule() {
+  const month = document.getElementById('scheduleMonth').value;
+  if (!month) return alert('Wybierz miesiąc');
+
+  const res = await fetch(`${API}/schedule?month=${month}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+
+  const view = document.getElementById('scheduleView');
+  view.innerHTML = '';
+
+  if (!data || !data.schedule) {
+    view.textContent = 'Brak grafiku';
+    return;
+  }
+
+  data.schedule.users.forEach(u => {
+    const div = document.createElement('div');
+    div.innerHTML = `<strong>${u.user.name}</strong><br/>`;
+
+    const table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.marginBottom = '10px';
+
+    u.days.forEach(d => {
+      const tr = document.createElement('tr');
+
+      const tdDay = document.createElement('td');
+      tdDay.textContent = `Dzień ${d.day}`;
+      tdDay.style.border = '1px solid #ccc';
+      tdDay.style.padding = '2px 5px';
+
+      const tdStart = document.createElement('td');
+      tdStart.textContent = d.startHour || '-';
+      tdStart.style.border = '1px solid #ccc';
+      tdStart.style.padding = '2px 5px';
+
+      const tdEnd = document.createElement('td');
+      tdEnd.textContent = d.endHour || '-';
+      tdEnd.style.border = '1px solid #ccc';
+      tdEnd.style.padding = '2px 5px';
+
+      tr.appendChild(tdDay);
+      tr.appendChild(tdStart);
+      tr.appendChild(tdEnd);
+
+      table.appendChild(tr);
+    });
+
+    div.appendChild(table);
+    view.appendChild(div);
+  });
+}
 
 </script>
 </body>
