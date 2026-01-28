@@ -1,0 +1,183 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { ChatBox } from '@/components/chat/ChatBox';
+import { ChatInput } from '@/components/chat/ChatInput';
+import { ChatUsersList } from '@/components/chat/ChatUsersList';
+import { GroupsManager } from '@/components/chat/GroupsManager';
+import { getMessages, sendMessage, getUnread, markAsRead } from '@/lib/chatApi';
+import { ChatMessage, ChatGroup } from '@/types/chat';
+
+type Drafts = Record<string, string>;
+
+export default function ChatPage() {
+  const { user } = useAuth();
+  const token = user?.token;
+
+  const [receiverId, setReceiverId] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [unreadUsers, setUnreadUsers] = useState<string[]>([]);
+  const [unreadGroups, setUnreadGroups] = useState<string[]>([]);
+  const [drafts, setDrafts] = useState<Drafts>({});
+
+  /* ---------- LOCAL STORAGE ---------- */
+
+  useEffect(() => {
+    const saved = localStorage.getItem('chat:selected');
+    const savedDrafts = localStorage.getItem('chat:drafts');
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setReceiverId(parsed.receiverId ?? null);
+      setGroupId(parsed.groupId ?? null);
+    }
+
+    if (savedDrafts) {
+      setDrafts(JSON.parse(savedDrafts));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'chat:selected',
+      JSON.stringify({ receiverId, groupId })
+    );
+  }, [receiverId, groupId]);
+
+  useEffect(() => {
+    localStorage.setItem('chat:drafts', JSON.stringify(drafts));
+  }, [drafts]);
+
+  /* ---------- DATA ---------- */
+
+  async function loadUnread() {
+    if (!token) return;
+    const d = await getUnread(token);
+    setUnreadUsers(d.users);
+    setUnreadGroups(d.groups);
+  }
+
+  async function loadMessages(
+    rId: string | null = receiverId,
+    gId: string | null = groupId
+  ) {
+    if (!token || (!rId && !gId)) {
+      setMessages([]);
+      return;
+    }
+    const d = await getMessages(token, rId, gId);
+    setMessages(d);
+  }
+
+  /* ---------- ACTIONS ---------- */
+
+  async function handleSend(text: string) {
+    if (!token) return;
+    if (!receiverId && !groupId) return;
+
+    await sendMessage(token, text, receiverId, groupId);
+
+    const key = receiverId
+      ? `user:${receiverId}`
+      : `group:${groupId}`;
+
+    setDrafts(p => ({ ...p, [key]: '' }));
+
+    await markAsRead(token, receiverId, groupId);
+    await loadMessages();
+    await loadUnread();
+  }
+
+  async function selectUser(id: string | null) {
+    setReceiverId(id);
+    setGroupId(null);
+
+    if (id) {
+      await markAsRead(token!, id, null);
+      setUnreadUsers(p => p.filter(x => x !== id));
+    }
+
+    await loadMessages(id, null);
+  }
+
+  async function selectGroup(g: ChatGroup) {
+    setGroupId(g._id);
+    setReceiverId(null);
+
+    await markAsRead(token!, null, g._id);
+    setUnreadGroups(p => p.filter(x => x !== g._id));
+
+    await loadMessages(null, g._id);
+  }
+
+  function closeChat() {
+    setReceiverId(null);
+    setGroupId(null);
+    setMessages([]);
+  }
+
+  useEffect(() => {
+    loadUnread();
+  }, [token]);
+
+  useEffect(() => {
+    loadMessages();
+  }, [receiverId, groupId]);
+
+  const activeKey =
+    receiverId ? `user:${receiverId}` :
+    groupId ? `group:${groupId}` :
+    null;
+
+  return (
+    <div className="space-y-4 max-w-xl">
+
+      <ChatUsersList
+        value={receiverId}
+        onChange={selectUser}
+        unreadUsers={unreadUsers}
+        drafts={drafts}
+      />
+
+      <GroupsManager
+        onSelectGroup={selectGroup}
+        unreadGroups={unreadGroups}
+        drafts={drafts}
+      />
+
+      {(receiverId || groupId) && (
+        <div className="border rounded p-3 space-y-3">
+
+          <div className="flex justify-between items-center border-b pb-2">
+            <span className="font-semibold">
+              {receiverId ? 'Czat prywatny' : 'Czat grupowy'}
+            </span>
+
+            <button
+              onClick={closeChat}
+              className="font-bold"
+            >
+              ✕
+            </button>
+          </div>
+
+          {activeKey && (
+            <>
+              <ChatBox messages={messages} />
+
+              <ChatInput
+                value={drafts[activeKey] || ''}
+                onChange={(v: string) =>
+                  setDrafts(p => ({ ...p, [activeKey]: v }))
+                }
+                onSend={handleSend}
+              />
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

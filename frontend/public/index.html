@@ -10,19 +10,6 @@
   <h1>workflowgastro.com</h1>
    <h1>(remote management, SaaS, mobile-first)</h1>
 
-  <!-- REJESTRACJA -->
-  <h2>Rejestracja</h2>
-  <input id="regName" placeholder="Imię / nazwa" />
-  <input id="regLogin" placeholder="Login" />
-  <input id="regPassword" type="password" placeholder="Hasło" />
-  <button onclick="register()">Zarejestruj</button>
-
-  <!-- LOGOWANIE -->
-  <h2>Logowanie</h2>
-  <input id="loginLogin" placeholder="Login" />
-  <input id="loginPassword" type="password" placeholder="Hasło" />
-  <button onclick="login()">Zaloguj</button>
-
   <hr/>
 
   <h2>Użytkownicy konta</h2>
@@ -57,23 +44,6 @@
 
 <button onclick="addUser()">Dodaj użytkownika</button>
 
-
-<!--  CHAT -->
-
-
-<h2>Czat</h2>
-
-<select id="chatTarget">
-  <option value="">Czat grupowy</option>
-</select>
-
-<div id="chatBox" style="border:1px solid #ccc;height:300px;overflow:auto;"></div>
-
-<input id="chatInput" placeholder="Napisz wiadomość..." />
-<button onclick="sendMessage()">Wyślij</button>
-
-
-<select id="chatTarget" onchange="loadMessages()">
 
 <!-- Plan table -->
 
@@ -110,77 +80,11 @@
 
 <button onclick="requestTimeOff()">Zgłoś</button>
 
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-
 <script>
 const API = 'http://localhost:3000/api';
 let token = null;
 let currentSupplierId = null;
 
-// ================== REJESTRACJA ==================
-
-async function register() {
-  await fetch(`${API}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      login: regLogin.value,
-      password: regPassword.value,
-      name: regName.value
-    })
-  });
-
-  alert('Zarejestrowano – zaloguj się');
-}
-
-
-// ================== LOGOWANIE ==================
-
-async function login() {
-  const loginVal = document.getElementById('loginLogin').value;
-  const password = document.getElementById('loginPassword').value;
-
-  const res = await fetch(`${API}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ login: loginVal, password })
-  });
-
-  const data = await res.json();
-  if (data.token) {
-    token = data.token;
-    alert('Zalogowano!');
-    //==========================================
-
-     if (!data.permissions?.canManageSchedule && data.role !== 'ADMIN') {
-  document.querySelectorAll('h2').forEach(h2 => {
-    if (h2.textContent.includes('Grafik')) h2.remove();
-  });
-}
-
-    //============================================
-    
-   loadSuppliers();
-loadUsers();
-loadChatUsers();
-loadMessages();
-loadScheduleUsers();
-
-
-  } else {
-    alert('Błąd logowania');
-  }
-}
 
 // ================== DOSTAWCY ==================
 
@@ -305,71 +209,6 @@ async function loadUsers() {
     ul.appendChild(li);
   });
 
-}
-
-
-// ============================ CHAT ====================================== //
-
-async function loadChatUsers() {
-   if (!token) return;
-  const res = await fetch(`${API}/users`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  const users = await res.json();
-  const select = document.getElementById('chatTarget');
-
-  users.forEach(u => {
-    const opt = document.createElement('option');
-    opt.value = u._id;
-    opt.textContent = u.name;
-    select.appendChild(opt);
-  });
-}
-
-//  pobieranie //
-
-async function loadMessages() {
-   if (!token) return;
-  const receiverId = document.getElementById('chatTarget').value;
-  const url = receiverId
-    ? `${API}/chat?receiverId=${receiverId}`
-    : `${API}/chat`;
-
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  const messages = await res.json();
-  const box = document.getElementById('chatBox');
-  box.innerHTML = '';
-
-  messages.forEach(m => {
-    const div = document.createElement('div');
-    div.textContent = `${m.sender.name}: ${m.text}`;
-    box.appendChild(div);
-  });
-
-  box.scrollTop = box.scrollHeight;
-}
- //wysyłanie //
-
- async function sendMessage() {
-   if (!token) return alert('Zaloguj się');
-  const text = document.getElementById('chatInput').value;
-  const receiverId = document.getElementById('chatTarget').value || null;
-
-  await fetch(`${API}/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ text, receiverId })
-  });
-
-  document.getElementById('chatInput').value = '';
-  loadMessages();
 }
 
 // Days Off

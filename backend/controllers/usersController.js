@@ -51,6 +51,7 @@ exports.createUser = async (req, res) => {
   res.status(201).json({ message: 'Użytkownik dodany' });
 };
 
+
 exports.getUsers = async (req, res) => {
   const users = await User.find({ owner: req.ownerId }).select('-password');
   res.json(users);

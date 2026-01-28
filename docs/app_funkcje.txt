@@ -2,6 +2,10 @@ Aplikacja ,,flowgastro.com'' przeznaczona dla menagerów, szefów kuchni, pracow
 
 Funkcjonalność:
 
+- Rejestracja na stronie, kod potwierdzający do rejestracji
+- Logowanie z kodem potwierdzającym do rejestracji i dodawanie urzadzenia zaufanego.
+
+
 1. Profil menagera, szefa kuchni:
 - Dodawanie pracowników, współpracowników,
 - Przydzielanie uprawnień i ról dostepu,
@@ -14,7 +18,7 @@ Funkcjonalność:
 - Grafiki sprzatania
 
 2. Zażądzanie i tworzenie grafików:
-- Logowanie, wylogowywanie z pracy,
+- Logowanie, wylogowywanie z pracy, 
 - Umieszczanie próźb o wolne i urlopy,
 
 3. Zarządzanie dostawami:
