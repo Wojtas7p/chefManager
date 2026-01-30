@@ -1,3 +1,5 @@
+// components/products/ProductsList.tsx
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -9,8 +11,7 @@ export default function ProductList({ supplierId }: { supplierId: string | null 
 
   async function load() {
     if (!supplierId) return
-    const res = await apiFetch(`/products/${supplierId}`)
-    const data = await res.json()
+    const data = await apiFetch(`/products/${supplierId}`)
     setProducts(data)
   }
 

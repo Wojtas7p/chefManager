@@ -46,6 +46,7 @@ export default function DashboardPage({children}:{children: ReactNode}) {
           <Link href="/dashboard">Home</Link>
           <Link href="/dashboard/users">Użytkownicy</Link>
           <Link href="/dashboard/chat">Czat</Link>
+          <Link href="/dashboard/suppliers">supplier</Link>
         </nav>
       </aside>
 

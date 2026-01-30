@@ -17,9 +17,10 @@ interface Props {
   onSelectGroup: (group: ChatGroup) => void;
   unreadGroups: string[];
   drafts: Record<string, string>;
+  activeGroupId: string | null;
 }
 
-export function GroupsManager({ onSelectGroup, unreadGroups, drafts }: Props) {
+export function GroupsManager({  activeGroupId, onSelectGroup, unreadGroups, drafts }: Props) {
   const { user } = useAuth();
   const token = user?.token;
 
@@ -53,36 +54,40 @@ export function GroupsManager({ onSelectGroup, unreadGroups, drafts }: Props) {
 
   return (
     <div className="space-y-3">
-      {groups.map(g => {
-        const hasUnread = unreadGroups.includes(g._id);
-        const hasDraft = drafts[`group:${g._id}`]?.trim();
+      
+     {groups.map(g => {
+  const hasUnread = unreadGroups.includes(g._id);
+  const hasDraft = Boolean(drafts[`group:${g._id}`]?.trim());
+  const isActive = activeGroupId === g._id;
 
-        return (
-          <div
-            key={g._id}
-            className={`relative border p-2 rounded cursor-pointer
-              ${hasUnread ? 'bg-blue-100 font-bold' : ''}
-            `}
-            onClick={() => onSelectGroup(g)}
-          >
-            <span>{g.name}</span>
+  return (
+    <div
+      key={g._id}
+      className={`relative border p-2 rounded cursor-pointer
+        ${hasUnread ? 'bg-blue-100 font-bold' : ''}
+      `}
+      onClick={() => onSelectGroup(g)}
+    >
+      <span>{g.name}</span>
 
-            {(hasUnread || hasDraft) && (
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
-            )}
+   
+      {hasDraft && !isActive && (
+        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+      )}
 
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                handleLeaveGroup(g._id);
-              }}
-              className="ml-2 text-red-500 text-sm"
-            >
-              Opuść
-            </button>
-          </div>
-        );
-      })}
+      <button
+        onClick={e => {
+          e.stopPropagation();
+          handleLeaveGroup(g._id);
+        }}
+        className="ml-2 text-red-500 text-sm"
+      >
+        Opuść
+      </button>
+    </div>
+  );
+})}
+
 
       <input
         value={groupName}

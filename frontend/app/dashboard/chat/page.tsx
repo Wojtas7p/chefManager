@@ -1,3 +1,5 @@
+// chat/page.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,35 +17,32 @@ export default function ChatPage() {
   const { user } = useAuth();
   const token = user?.token;
 
-  const [receiverId, setReceiverId] = useState<string | null>(null);
-  const [groupId, setGroupId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [unreadUsers, setUnreadUsers] = useState<string[]>([]);
   const [unreadGroups, setUnreadGroups] = useState<string[]>([]);
-  const [drafts, setDrafts] = useState<Drafts>({});
 
-  /* ---------- LOCAL STORAGE ---------- */
+  // drafty per user/group
+  const [drafts, setDrafts] = useState<Drafts>(() => {
+    if (typeof window === 'undefined') return {};
+    const saved = localStorage.getItem('chat:drafts');
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  useEffect(() => {
+  const [receiverId, setReceiverId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
     const saved = localStorage.getItem('chat:selected');
-    const savedDrafts = localStorage.getItem('chat:drafts');
+    return saved ? JSON.parse(saved).receiverId : null;
+  });
 
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setReceiverId(parsed.receiverId ?? null);
-      setGroupId(parsed.groupId ?? null);
-    }
+  const [groupId, setGroupId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const saved = localStorage.getItem('chat:selected');
+    return saved ? JSON.parse(saved).groupId : null;
+  });
 
-    if (savedDrafts) {
-      setDrafts(JSON.parse(savedDrafts));
-    }
-  }, []);
-
+  // zapisujemy w localStorage
   useEffect(() => {
-    localStorage.setItem(
-      'chat:selected',
-      JSON.stringify({ receiverId, groupId })
-    );
+    localStorage.setItem('chat:selected', JSON.stringify({ receiverId, groupId }));
   }, [receiverId, groupId]);
 
   useEffect(() => {
@@ -59,10 +58,7 @@ export default function ChatPage() {
     setUnreadGroups(d.groups);
   }
 
-  async function loadMessages(
-    rId: string | null = receiverId,
-    gId: string | null = groupId
-  ) {
+  async function loadMessages(rId = receiverId, gId = groupId) {
     if (!token || (!rId && !gId)) {
       setMessages([]);
       return;
@@ -79,10 +75,7 @@ export default function ChatPage() {
 
     await sendMessage(token, text, receiverId, groupId);
 
-    const key = receiverId
-      ? `user:${receiverId}`
-      : `group:${groupId}`;
-
+    const key = receiverId ? `user:${receiverId}` : `group:${groupId}`;
     setDrafts(p => ({ ...p, [key]: '' }));
 
     await markAsRead(token, receiverId, groupId);
@@ -127,13 +120,24 @@ export default function ChatPage() {
   }, [receiverId, groupId]);
 
   const activeKey =
-    receiverId ? `user:${receiverId}` :
-    groupId ? `group:${groupId}` :
-    null;
+    receiverId ? `user:${receiverId}` : groupId ? `group:${groupId}` : null;
+
+  // czyścimy wszystko przy wylogowaniu
+  useEffect(() => {
+    if (!user) {
+      setReceiverId(null);
+      setGroupId(null);
+      setMessages([]);
+      setUnreadUsers([]);
+      setUnreadGroups([]);
+      setDrafts({});
+      localStorage.removeItem('chat:selected');
+      localStorage.removeItem('chat:drafts');
+    }
+  }, [user]);
 
   return (
     <div className="space-y-4 max-w-xl">
-
       <ChatUsersList
         value={receiverId}
         onChange={selectUser}
@@ -145,20 +149,17 @@ export default function ChatPage() {
         onSelectGroup={selectGroup}
         unreadGroups={unreadGroups}
         drafts={drafts}
+        activeGroupId={groupId}
       />
 
       {(receiverId || groupId) && (
         <div className="border rounded p-3 space-y-3">
-
           <div className="flex justify-between items-center border-b pb-2">
             <span className="font-semibold">
               {receiverId ? 'Czat prywatny' : 'Czat grupowy'}
             </span>
 
-            <button
-              onClick={closeChat}
-              className="font-bold"
-            >
+            <button onClick={closeChat} className="font-bold">
               ✕
             </button>
           </div>
@@ -166,7 +167,6 @@ export default function ChatPage() {
           {activeKey && (
             <>
               <ChatBox messages={messages} />
-
               <ChatInput
                 value={drafts[activeKey] || ''}
                 onChange={(v: string) =>
@@ -181,3 +181,4 @@ export default function ChatPage() {
     </div>
   );
 }
+

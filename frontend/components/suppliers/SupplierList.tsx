@@ -1,3 +1,5 @@
+// components/suppliers/SupplierList.tsx
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -8,8 +10,7 @@ export default function SupplierList({ onSelect }: { onSelect: (id: string) => v
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
 
   async function load() {
-    const res = await apiFetch("/suppliers")
-    const data = await res.json()
+    const data = await apiFetch("/suppliers")
     setSuppliers(data)
   }
 
