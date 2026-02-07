@@ -63,10 +63,11 @@ export function GroupsManager({  activeGroupId, onSelectGroup, unreadGroups, dra
   return (
     <div
       key={g._id}
-      className={`relative border p-2 rounded cursor-pointer
-        ${hasUnread ? 'bg-blue-100 font-bold' : ''}
+      className={`relative border p-2 rounded cursor-pointer hover:bg-gray-200/70 
+        ${hasUnread ? 'bg-blue-100 font-semibold ' : ''}
       `}
       onClick={() => onSelectGroup(g)}
+      
     >
       <span>{g.name}</span>
 

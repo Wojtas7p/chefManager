@@ -11,6 +11,10 @@ import {
   isValidPhoneNumber,
 } from "@/lib/validators";
 import { PHONE_CODES } from "@/lib/phoneCodes";
+import "./../../globals.css";
+import Image from "next/image";
+
+
 
 
 export default function RegisterPage() {
@@ -106,48 +110,37 @@ useEffect(() => {
 
 
   return (
-    <main>
+    <main  className="w-[100vw] h-[100vh] relative  overflow-hidden" >
+
+
+
+        <Image
+              src="/img1.jpg"
+              alt="Tło logowania"
+              fill
+              priority
+               className="object-cover"
+            />
+      
+        <div
+           
+              className="absolute z-10 inset-0 bg-white/10"
+            />
+
+
+
+
+        <div className="rounded-xl p-8 m-4 relative z-20 flex flex-col bg-gray-700/50 backdrop-blur-sm 
+         w-140 " > 
+
+
+       
+        
       <h1>Rejestracja</h1>
     
 
-<input
-        placeholder="Nazwa"
-        value={form.name}
-        onChange={e => update("name", e.target.value)}
-      />
-
-      <input
-        placeholder="Stanowisko"
-        value={form.position}
-        onChange={e => update("position", e.target.value)}
-      />
-
-      <input
-        type="date"
-        value={form.birthDate}
-        onChange={e => update("birthDate", e.target.value)}
-      />
-      {submitted && errors.birthDate && <p style={{ color: "red" }}>{errors.birthDate}</p>}
-
-      <select
-        value={form.phoneCountryCode}
-        onChange={e => update("phoneCountryCode", e.target.value)}
-      >
-        {PHONE_CODES.map(c => (
-          <option key={c.value} value={c.value}>
-            {c.label}
-          </option>
-        ))}
-      </select>
-
-      <input
-        placeholder="Numer telefonu"
-        value={form.phoneNumber}
-        onChange={e => update("phoneNumber", e.target.value.replace(/\D/g, ""))}
-      />
-      {submitted && errors.phoneNumber && <p style={{ color: "red" }}>{errors.phoneNumber}</p>}
-
-      <input
+        <input
+       className="input-form" 
         placeholder="Email (login)"
         value={form.login}
         onChange={e => update("login", e.target.value)}
@@ -155,6 +148,7 @@ useEffect(() => {
       {submitted && errors.login && <p style={{ color: "red" }}>{errors.login}</p>}
 
       <input
+       className="input-form" 
         type="password"
         placeholder="Hasło"
         value={form.password}
@@ -162,6 +156,52 @@ useEffect(() => {
       />
       {submitted && errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
 
+        <input
+        className="input-form" 
+        placeholder="Nazwa"
+        value={form.name}
+        onChange={e => update("name", e.target.value)}
+      />
+
+      <input
+       className="input-form" 
+        placeholder="Stanowisko"
+        value={form.position}
+        onChange={e => update("position", e.target.value)}
+      />
+
+       <div className="flex gap-2">
+      <select
+        value={form.phoneCountryCode}
+        onChange={e => update("phoneCountryCode", e.target.value)}
+        className="-full px-4 py-2 border-b border-gray-400
+           focus:outline-none focus:ring-2 focus:ring-blue-500 
+           bg-transparent text-white mb-2 flex-[3] "
+      >
+        {PHONE_CODES.map(c => (
+          <option key={c.value} value={c.value} className=" bg-gray-600">
+            {c.label}
+          </option>
+        ))}
+      </select>
+
+      <input
+       className="input-form flex-[7]" 
+        placeholder="Numer telefonu"
+        value={form.phoneNumber}
+        onChange={e => update("phoneNumber", e.target.value.replace(/\D/g, ""))}
+      />
+      {submitted && errors.phoneNumber && <p style={{ color: "red" }}>{errors.phoneNumber}</p>}
+      </div>
+
+         <input
+        className="input-form" 
+        type="date"
+        value={form.birthDate}
+        onChange={e => update("birthDate", e.target.value)}
+      />
+      {submitted && errors.birthDate && <p style={{ color: "red" }}>{errors.birthDate}</p>}
+    
       <button
         onClick={handleRegister}
         disabled={!allFieldsFilled}
@@ -172,6 +212,7 @@ useEffect(() => {
       >
         Zarejestruj
       </button>
+      </div>
 
     </main>
   );

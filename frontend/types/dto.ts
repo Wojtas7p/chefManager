@@ -10,6 +10,12 @@ export type CreateUserDTO = {
   };
 };
 
+
+
+
+
+
+
 export type RegisterDTO = {
   login: string;
   password: string;

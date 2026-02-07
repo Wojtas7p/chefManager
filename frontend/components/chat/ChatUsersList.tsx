@@ -42,9 +42,10 @@ const isActive = value === u._id;
           <li key={u._id} className="relative">
 <button
   onClick={() => onChange(u._id)}
-  className={`w-full text-left px-3 py-2
-    ${value === u._id ? 'bg-gray-200 font-semibold' : ''}
-    ${hasUnread ? 'bg-blue-100' : ''}
+    className={`w-full text-left px-3 py-2 transition-colors duration-150 rounded cursor-pointer
+      ${value === u._id ? 'font-semibold' : ''}
+      ${hasUnread ? 'bg-blue-100' : ''}
+      hover:bg-gray-200/70
   `}
 >
   {u.name}

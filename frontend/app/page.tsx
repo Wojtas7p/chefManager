@@ -1,6 +1,6 @@
 export default function HomePage() {
   return (
-    <section>
+    <section className="m-50">
       <h1>flowgastro.com</h1>
       <h2>workflowgastro.com</h2>
       <h3>Gastronomia bez wysiłku</h3>
