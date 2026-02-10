@@ -39,13 +39,16 @@ const isActive = value === u._id;
 
         return (
           
-          <li key={u._id} className="relative">
+          <li key={u._id} className="relative  px-4 py-2 cursor-pointer flex gap-3
+          duration-150 rounded hover:bg-[#d0f6f0] transition-colors"> 
+              <div className="bg-gray-400  rounded-3xl w-10 h-10"/>
+          
 <button
   onClick={() => onChange(u._id)}
-    className={`w-full text-left px-3 py-2 transition-colors duration-150 rounded cursor-pointer
+    className={` text-left w-42 overflow-hidden
       ${value === u._id ? 'font-semibold' : ''}
       ${hasUnread ? 'bg-blue-100' : ''}
-      hover:bg-gray-200/70
+     
   `}
 >
   {u.name}

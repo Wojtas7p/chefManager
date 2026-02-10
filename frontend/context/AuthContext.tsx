@@ -21,11 +21,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsReady(true); 
   }, []);
 
+
+
+
   function loginUser(token: string) {
     localStorage.setItem("token", token);
     setUser({ token });
     router.push("/dashboard");
   }
+
+
+
+
+
 
   function logout() {
     localStorage.removeItem("token");
@@ -33,6 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     router.push("/");
   }
+
+
+
 
   if (!isReady) return null; 
 

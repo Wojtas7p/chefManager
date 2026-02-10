@@ -9,7 +9,7 @@ export default function AuthPage() {
   const router = useRouter();
 
   return (
-    <main className="w-full min-h-screen flex justify-center" >
+    <main className="main flex justify-center" >
 
 
            <Image
@@ -21,7 +21,7 @@ export default function AuthPage() {
                   />
  <div
            
-              className="absolute z-10 inset-0 bg-white/80 "
+              className="absolute z-10 inset-0 bg-white/60 "
             />
 
       
@@ -45,7 +45,7 @@ export default function AuthPage() {
 
 
         <div onClick={() => router.push("/auth/login")} className="cursor-pointer w-65 h-85 rounded-xl 
-          shadow-lg p-5 flex flex-col justify-between group bg-white hover:shadow-2xl
+          shadow-lg p-5 flex flex-col justify-between group  bg-gray-700/10 backdrop-blur-sm  hover:shadow-2xl
            transition-shadow duration-300 max-[800px]:w-80 max-[800px]:h-50 max-[400px]:w-70" >
           
           <h3 className="text-2xl font-semibold max-[800px]:text-xl">Witaj ponownie.<br/>Zaloguj się</h3>
@@ -53,7 +53,7 @@ export default function AuthPage() {
 <div >
  
    <Image
-            src="/logIcon.png" alt="img" width={100} height={50} style={{ color:"blue"}}
+            src="/logIcon.png" alt="img" width={80} height={50} style={{ color:"blue"}}
             className="object-contain group-hover:brightness-125 ml-auto max-[800px]:w-16" 
             unoptimized priority
             
@@ -66,7 +66,7 @@ export default function AuthPage() {
         </div>
 
         <div onClick={() => router.push("/auth/register")} className="cursor-pointer w-65 h-85 rounded-xl 
-          shadow-lg p-5 flex flex-col justify-between group bg-white hover:shadow-2xl 
+          shadow-lg p-5 flex flex-col justify-between group  bg-gray-700/10 backdrop-blur-sm hover:shadow-2xl 
           transition-shadow duration-300 max-[800px]:w-80 max-[800px]:h-50 max-[400px]:w-70">
       
           <h3 className="text-2xl font-semibold max-[800px]:text-xl">Aby dołączyć, Zarejestruj się</h3>
@@ -75,7 +75,7 @@ export default function AuthPage() {
 
 
             <Image
-            src="/regIcon.png" alt="img" width={100} height={50}
+            src="/regIcon.png" alt="img" width={80} height={50}
             className="object-contain group-hover:brightness-125 ml-auto max-[800px]:w-16" unoptimized priority
             />  
      

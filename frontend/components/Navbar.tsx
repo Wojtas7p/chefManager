@@ -14,27 +14,16 @@ export default function Navbar() {
 
 
     <nav 
-
+    className="flex p-3 w-full items-center justify-between text-black"
     style={{
-        display: "inline-flex",
-        gap: 16,
-        padding: 12,
-        width: isHome ? "100%" : "",
-        justifyContent: "space-around",
-        alignItems: "center",
         background:isHome ? "white":"transparent", 
         boxShadow: isHome
           ? "0px 2px 4px 2px lightgrey"
           : "none",
-        color: isHome ? "black" : "black",
-      }}
-    
+        }}
     >
       <Link href="/">
-       
       </Link>
-
-
      {!user && (
   <>
     {isHome ? (
@@ -54,16 +43,12 @@ export default function Navbar() {
   </>
 )}
 
-
-
-
-
       {user && (
-        <>
+        <div>
           <Link href="/dashboard">Panel</Link>
           <Link href="/dashboard/users">Użytkownicy</Link>
           <button onClick={logout}>Wyloguj</button>
-        </>
+        </div>
       )}
     </nav>
   );

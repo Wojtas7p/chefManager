@@ -137,7 +137,7 @@ export default function ChatPage() {
   }, [user]);
 
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="space-y-4 ">
       <ChatUsersList
         value={receiverId}
         onChange={selectUser}
@@ -151,21 +151,22 @@ export default function ChatPage() {
         drafts={drafts}
         activeGroupId={groupId}
       />
+   
 
       {(receiverId || groupId) && (
-        <div className="border rounded p-3 space-y-3">
+        <div className="flex flex-col bg-gray-100/95 backdrop-blur-xl shadow-2xl p-4 absolute bottom-0 right-20 w-80">
           <div className="flex justify-between items-center border-b pb-2">
             <span className="font-semibold">
               {receiverId ? 'Czat prywatny' : 'Czat grupowy'}
             </span>
 
-            <button onClick={closeChat} className="font-bold">
+            <button onClick={closeChat} className="text-gray-500 hover:text-[#32A293] font-bold text-2xl">
               ✕
             </button>
           </div>
 
           {activeKey && (
-            <>
+            <div className="flex flex-col justify-between h-102">
               <ChatBox messages={messages} />
               <ChatInput
                 value={drafts[activeKey] || ''}
@@ -174,7 +175,7 @@ export default function ChatPage() {
                 }
                 onSend={handleSend}
               />
-            </>
+            </div>
           )}
         </div>
       )}

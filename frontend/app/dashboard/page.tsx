@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import ChatPage from './chat/page';
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 
 
@@ -19,37 +20,55 @@ export default function DashboardPage({children}:{children: ReactNode}) {
 
   return (
     
-    <main >
-      <h1 className="w-max mb-10 mt-10 m-auto text-[40px] font-extrabold border-b">Panel użytkownika</h1>
+    <main className="main flex">
+
+      <Image
+        src="/bgUserHome.png"
+        alt="Tło logowania"
+        fill
+        priority
+        className="object-cover"
+      />         
+      <div className="absolute z-10 inset-0 bg-white/10 " />
 
 
-      <div className="flex h-screen justify-between ">
+<div className="flex relative z-20 w-full">
   
-        <aside className="w-64 border-r space-y-2">
+
+     <aside className="space-y-2 px-4 py-6 bg-gray-100/10 backdrop-blur-sm shadow-lg ">
+           
+          <Image
+            src="/logoFlowGastro.png" alt="Logo" width={150} height={50}
+            className="object-contain mb-7 max-[800px]:w-50" unoptimized priority
+          /> 
     
-           <nav className="flex flex-col [&>a]:block [&>a]:w-35 [&>a]:text-center [&>a]:bg-gray-500 [&>a]:text-white 
-                [&>a]:rounded-[50px] [&>a]:p-4 [&>a]:mr-4 [&>a]:mt-4
-                [&>a]:transition [&>a]:transform [&>a]:hover:bg-gray-400 [&>a]:hover:scale-110
-                gap-2">
+           <nav className="flex flex-col [&>a]:block [&>a]:text-gray-700 [&>a]:py-1 [&>a]:p-3 [&>a]:transition 
+            [&>a]:transform [&>a]:hover:bg-[#d0f6f0] gap-2">
+
              <Link href="/dashboard/users">Użytkownicy</Link>
-             <Link href="/dashboard/chat">Czat</Link>
-             <Link href="/dashboard/suppliers">Supplier</Link>
-             <Link href="/dashboard/usersList">UsersList</Link>
-              <Link href="/dashboard/shedule">Grafik</Link>
+             <Link href="/dashboard/chat">Własne</Link>
+             <Link href="/dashboard/suppliers">Zamówienia</Link>
+             <Link href="/dashboard/usersList">Grafik</Link>
+             <Link href="/dashboard/shedule">Zarządzanie</Link>
+             <Link href="/dashboard/chatBox">Profil</Link>
+          
            </nav>
 
         </aside>
-      
-        <div className="flex-1 p-6 ">
+
+  <div className="flex w-full">
+       
+        <aside className="flex-1 p-14 bg-gray-200/10  ">
           {children}  
           <h1>środek Srtony</h1>
-        </div>
+        </aside>
   
-        <aside className="border-l pl-4">
+        <aside className="bg-gray-100/10 backdrop-blur-lg shadow-lg pt-14 ">
            <ChatPage />
         </aside>
-      </div>
-      
+  </div>
+
+</div>  
     </main>
   );
 }

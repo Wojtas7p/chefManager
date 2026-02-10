@@ -1,8 +1,5 @@
 // dashboard/users/page.tsx
 
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -13,7 +10,7 @@ import {
   isValidPassword,
   isValidBirthDate,
 } from "@/lib/validators";
-
+import Image from "next/image";
 import { PHONE_CODES } from "@/lib/phoneCodes";
 
 export default function UsersPage() {
@@ -80,40 +77,71 @@ function validate(): RegisterFormErrors {
   }
   
   return (
-    <main>
-      <h1>Użytkownicy</h1>
+    <main className="main">
 
-      {/* ===== FORM ===== */}
-      <section>
+     <Image
+             src="/bgUserPage.png"
+             alt="Tło logowania"
+            fill
+            priority
+            className="object-cover"
+          />  
+                          
+           <div className="absolute z-10 inset-0 bg-white/30 " />
+
+
+
+
+    <div className=" flex flex-col pt-24 relative z-20 gap-10 items-center 
+max-[400px]:min-w-[300px] max-[400px]:pt-24 max-[400px]:gap-2">
+
+      <section className="rounded-lg p-8 m-4 relative z-20 flex flex-col bg-gray-100/10 backdrop-blur-sm 
+         w-140 shadow-lg max-[800px]:w-100 max-[400px]:w-80">
+
+
         <h2>Dodaj użytkownika</h2>
 
-        <input placeholder="Nazwa" value={name} onChange={e => setName(e.target.value)} />
+
+
+<div className="relative">
+        <input  className="input-form" placeholder="Nazwa" value={name} onChange={e => setName(e.target.value)} />
         <input
+         className="input-form"
          placeholder="Login (email)"
          value={login}
          onChange={e => setLogin(e.target.value)}/>
-         {errors.login && <p style={{ color: "red" }}>{errors.login}</p>}
+         {errors.login && <p  className="err-form">{errors.login}</p>}
+</div>
 
+<div className="relative">
         <input
+         className="input-form"
   type="password"
   placeholder="Hasło"
   value={password}
   onChange={e => setPassword(e.target.value)}/>
-{errors.password && (
-  <p style={{ color: "red" }}>{errors.password}</p>
-)}
+  {errors.password && (
+  <p  className="err-form">{errors.password}</p>
+ )}
+</div>
 
-        <input placeholder="Stanowisko" value={position} onChange={e => setPosition(e.target.value)}/>
+        <input  className="input-form" placeholder="Stanowisko" value={position} onChange={e => setPosition(e.target.value)}/>
+
+<div className="relative">      
 <input
+ className="input-form"
   type="date"
   value={birthDate}
   onChange={e => setBirthDate(e.target.value)}
 />
 {errors.birthDate && (
-  <p style={{ color: "red" }}>{errors.birthDate}</p>
+  <p  className="err-form">{errors.birthDate}</p>
 )}
+</div>  
 
+<div className="flex gap-3">
  <select
+  className="input-form flex-[4]"
         value={phoneCountryCode}
         onChange={e => setPhoneCountryCode(e.target.value)}
       >
@@ -125,30 +153,34 @@ function validate(): RegisterFormErrors {
       </select>
 
 <input
+  className="input-form flex-[6]" 
   placeholder="Numer telefonu"
   value={phone}
   onChange={e => setPhone(e.target.value.replace(/\D/g, "")) }
   inputMode="numeric"
   pattern="[0-9]*"
 />
+</div>
 
-
-        <label>
-          <input type="checkbox" checked={canManageSchedule}onChange={e => setCanManageSchedule(e.target.checked)}/>
+<div className="relative">
+        <label className="flex gap-3">
+          <input className="accent-[#2E8A80]" 
+          type="checkbox" checked={canManageSchedule}onChange={e => setCanManageSchedule(e.target.checked)}/>
           Może zarządzać grafikiem
         </label>
 
         {formError && (
-  <p style={{ color: "red", marginTop: 8 }}>
+  <p   className="err-form" >
     {formError}
   </p>
 )}
+</div>
 
-
-        <button onClick={handleCreateUser}>Dodaj</button>
+        <button className="button-form cursor-pointer opacity-100 hover:bg-[#32A293]" 
+        onClick={handleCreateUser}>Dodaj</button>
       </section>
 
-    
+    </div>
     </main>
   );
 }
