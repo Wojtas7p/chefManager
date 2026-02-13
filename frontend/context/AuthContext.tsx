@@ -30,11 +30,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/dashboard");
   }
 
-
-
-
-
-
   function logout() {
     localStorage.removeItem("token");
     

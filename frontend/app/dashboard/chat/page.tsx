@@ -137,7 +137,7 @@ export default function ChatPage() {
   }, [user]);
 
   return (
-    <div className="space-y-4 ">
+    <div className="space-y-4 pt-14 h-[100vh] overflow-auto ">
       <ChatUsersList
         value={receiverId}
         onChange={selectUser}

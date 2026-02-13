@@ -104,7 +104,7 @@ export function GroupsManager({  activeGroupId, onSelectGroup, unreadGroups, dra
   onClick={() => setIsCreatingGroup(true)}
 >
   <Image
-    src="plus.svg"
+    src="/plus.svg"
     alt='add'
     width={40}
     height={20}

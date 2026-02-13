@@ -27,8 +27,6 @@ export async function getSchedule(month: string): Promise<Schedule | null> {
 
 
 
-
-
 export async function saveSchedule(schedule: Schedule): Promise<void> {
   const res = await fetch(`${API}/schedule`, {
     method: 'POST',

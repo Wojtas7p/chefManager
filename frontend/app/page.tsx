@@ -1,4 +1,19 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+
 export default function HomePage() {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/dashboard"); // automatyczne przekierowanie jeśli zalogowany
+    }
+  }, [user, router]);
+
   return (
     <section className="m-50">
       <h1>flowgastro.com</h1>
@@ -8,4 +23,5 @@ export default function HomePage() {
     </section>
   );
 }
+
 

@@ -13,7 +13,7 @@ export default function DashboardPage({children}:{children: ReactNode}) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) router.push("/auth/login");
+    if (!token) router.push("/");
 
   }, []);
 
@@ -48,8 +48,8 @@ export default function DashboardPage({children}:{children: ReactNode}) {
              <Link href="/dashboard/users">Użytkownicy</Link>
              <Link href="/dashboard/chat">Własne</Link>
              <Link href="/dashboard/suppliers">Zamówienia</Link>
-             <Link href="/dashboard/usersList">Grafik</Link>
-             <Link href="/dashboard/shedule">Zarządzanie</Link>
+             <Link href="/dashboard/usersList">Zarządzanie</Link>
+             <Link href="/dashboard/shedule">Grafik</Link>
              <Link href="/dashboard/chatBox">Profil</Link>
           
            </nav>
@@ -63,7 +63,7 @@ export default function DashboardPage({children}:{children: ReactNode}) {
           <h1>środek Srtony</h1>
         </aside>
   
-        <aside className="bg-gray-100/10 backdrop-blur-lg shadow-lg pt-14 ">
+        <aside className="bg-gray-100/10 backdrop-blur-lg shadow-lg ">
            <ChatPage />
         </aside>
   </div>

@@ -4,12 +4,18 @@ export interface ScheduleDay {
   endHour?: string;
 }
 
+export interface UserObject {
+  _id: string;
+  name: string;
+}
+
 export interface UserSchedule {
-  user: string; // userId
+  user: UserObject | null;
   days: ScheduleDay[];
 }
 
 export interface Schedule {
-  month: string; // YYYY-MM
+  month: string;
   users: UserSchedule[];
 }
+
