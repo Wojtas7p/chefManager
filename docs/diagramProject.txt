@@ -1,0 +1,87 @@
+
+
+Architektóra:
+
+  Engineering thesis/
+│
+├── README.md
+├── .gitignore
+├── docs/                   # dokumentacja, notatki, diagramy
+│   └── .env
+|
+
+
+
+
+
+├── frontend/               # front-end (np. Next.js)
+│   ├── app/
+│   │   ├── auth
+│   │   │    ├── login
+│   │   │    |     └── page.tsx
+│   │   │    ├── otp
+│   │   │    |     └── page.tsx
+│   │   │    ├── register
+│   │   │    |     └── page.tsx
+│   │   │    └── page.tsx
+│   │   │ 
+│   │   ├── dashboaed
+│   │   │    ├── users
+│   │   │    │     └── page.tsx
+│   │   │    └── page.tsx
+│   │   │ 
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   │ 
+│   ├── components/
+│   │   ├── NavBar.tsx
+│   │   └── OtpForm.tsx  
+│   │
+│   ├── context/
+│   │   └── AuthContext.tsx
+│   ├── lib/
+│   │   ├── api.ts
+│   │   └── validators.ts
+│   ├── public/
+|   ├── types
+│   |   ├── auth.ts
+│   |   ├── dto.ts
+|   |   ├── forms.d.ts
+│   |   └── user.ts
+|   |
+│   └── package.json
+
+
+
+
+
+
+├── 
+├── 
+├── 
+├── 
+├── 
+└── 
+└── 
+└── 
+└── 
+
+
+
+
+├── backend/                # back-end (np. Node.js/Express, Python Flask)
+│   ├── package.json
+│   ├── server.js / app.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── models/             # modele MongoDB
+│   ├── services/           # logika pobierania API zewnętrznych
+│   ├── config/             # konfiguracja (MongoDB URI, API keys)
+│   └── utils/              # helpery, np. do obsługi błędów
+│
+├── database/               # np. skrypty MongoDB, backup, seed
+│
+└── scripts/                # narzędzia developerskie (build, deploy)
+
+

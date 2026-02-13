@@ -19,7 +19,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/schedule', require('./routes/schedule'));
 app.use('/api/timeoff', require('./routes/timeOff'));
-
+app.use('/api/chat-groups', require('./routes/chatGroups'));
 
 
 // DB

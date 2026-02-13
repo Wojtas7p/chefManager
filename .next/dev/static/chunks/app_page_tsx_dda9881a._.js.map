@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/wojtas/chefManager/frontend/app/page.tsx"],"sourcesContent":["\"use client\";\n\nimport { useEffect } from \"react\";\nimport { useRouter } from \"next/navigation\";\nimport { useAuth } from \"@/context/AuthContext\";\n\nexport default function HomePage() {\n  const router = useRouter();\n  const { user } = useAuth();\n\n  useEffect(() => {\n    if (user) {\n      router.replace(\"/dashboard\"); // automatyczne przekierowanie jeśli zalogowany\n    }\n  }, [user, router]);\n\n  return (\n    <section className=\"m-50\">\n      <h1>flowgastro.com</h1>\n      <h2>workflowgastro.com</h2>\n      <h3>Gastronomia bez wysiłku</h3>\n      <p>Remote management, SaaS, mobile-first</p>\n    </section>\n  );\n}\n\n\n"],"names":[],"mappings":";;;;;AAEA;AACA;AACA;;;AAJA;;;;AAMe,SAAS;;IACtB,MAAM,SAAS,IAAA,kJAAS;IACxB,MAAM,EAAE,IAAI,EAAE,GAAG,IAAA,qIAAO;IAExB,IAAA,0KAAS;8BAAC;YACR,IAAI,MAAM;gBACR,OAAO,OAAO,CAAC,eAAe,+CAA+C;YAC/E;QACF;6BAAG;QAAC;QAAM;KAAO;IAEjB,qBACE,6LAAC;QAAQ,WAAU;;0BACjB,6LAAC;0BAAG;;;;;;0BACJ,6LAAC;0BAAG;;;;;;0BACJ,6LAAC;0BAAG;;;;;;0BACJ,6LAAC;0BAAE;;;;;;;;;;;;AAGT;GAlBwB;;QACP,kJAAS;QACP,qIAAO;;;KAFF"}}]
+}

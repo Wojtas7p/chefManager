@@ -20,11 +20,25 @@ const MessageSchema = new mongoose.Schema(
       default: null // null = groupe message
     },
 
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ChatGroup',
+      default: null // czat grupowy
+      
+    },
+       
     text: {
       type: String,
       required: true,
       trim: true
-    }
+    },
+
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ]
   },
   { timestamps: true }
 );

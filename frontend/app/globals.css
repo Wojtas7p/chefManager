@@ -1,7 +1,14 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #F6FCFA;
   --foreground: #171717;
 }
 
@@ -12,7 +19,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -22,7 +29,45 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  /* add by my */
-  margin:15%;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
 }
+
+
+@layer components {
+
+  .main { 
+@apply relative w-full min-h-screen overflow-hidden
+
+  }
+
+
+  .input-form {
+    @apply w-full px-4 py-2 rounded-lg 
+           focus:outline-none focus:ring-2 focus:ring-blue-500 
+           bg-gray-700/10 text-gray-900 placeholder-gray-600 mb-5 
+           max-[400px]:mb-3 ;
+  }
+
+    .button-form {
+    @apply  px-4 py-2 rounded-lg 
+           focus:outline-none focus:ring-2 focus:ring-blue-500 
+          text-white font-semibold placeholder-gray-900 mb-5 
+           bg-[#2E8A80] transition-colors duration-200  ;
+            /* bg-[#50AFA0]  */
+       
+           
+          
+  }
+
+.err-form {
+    @apply  absolute text-red-600 text-xs bg-white px-1 bottom-3 left-3 rounded-md;
+  }
+
+}
+
+
+
+
+
+       
+          /* <div className="bg-[#3BAFA4] w-50 h-50"></div>  */
