@@ -2,7 +2,7 @@
 
 import { ChatMessage, ChatGroup } from '@/types/chat';
 
-const API = "http://localhost:5000/api";
+const API = process.env.NEXT_PUBLIC_BACKEND_URL + "/api";
 
 export async function getChatUsers(token: string) {
   const res = await fetch(`${API}/users`, {
