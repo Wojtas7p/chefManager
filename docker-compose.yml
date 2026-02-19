@@ -7,8 +7,8 @@ services:
     restart: always
     volumes:
       - mongo_data:/data/db
-    ports:
-      - "27017:27017"
+    networks:
+      - chefmanager-network
 
   backend:
     build: ./backend
@@ -16,19 +16,38 @@ services:
     restart: always
     environment:
       MONGO_URI: "mongodb://mongo:27017/chefmanager"
-    ports:
-      - "5000:5000"
-    depends_on:
-      - mongo
+    networks:
+      - chefmanager-network
 
   frontend:
     build: ./frontend
     container_name: frontend
     restart: always
+    environment:
+      NEXT_PUBLIC_BACKEND_URL: "http://backend:5000"
+    networks:
+      - chefmanager-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
     ports:
-      - "3000:3000"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    networks:
+      - chefmanager-network
     depends_on:
-      - backend
+      - frontend
 
 volumes:
   mongo_data:
+
+networks:
+  chefmanager-network:
+    external: true
+
