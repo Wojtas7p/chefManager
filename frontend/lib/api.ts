@@ -1,6 +1,7 @@
 
 // lib/api.ts
-const API = "http://localhost:5000/api";
+
+const API = process.env.NEXT_PUBLIC_BACKEND_URL + "/api";
 import type { RegisterDTO, CreateUserDTO } from "@/types/dto";
 
 
