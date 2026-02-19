@@ -8,7 +8,13 @@ const cors = require('cors');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['http://flowgastro.com', 
+    'https://flowgastro.com', 
+    'http://localhost:3000'  
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 // routes

@@ -3,7 +3,7 @@
 
 import { Schedule } from '@/types/schedule';
 
-const API = 'http://localhost:3000/api';
+const API = 'http://localhost:5000/api';
 
 export async function getSchedule(month: string): Promise<Schedule | null> {
   const res = await fetch(`${API}/schedule?month=${month}`, {

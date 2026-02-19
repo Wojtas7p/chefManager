@@ -1,6 +1,6 @@
 
 // lib/api.ts
-const API = "http://localhost:3000/api";
+const API = "http://localhost:5000/api";
 import type { RegisterDTO, CreateUserDTO } from "@/types/dto";
 
 
