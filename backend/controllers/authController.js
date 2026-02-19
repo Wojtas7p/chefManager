@@ -32,45 +32,85 @@ async function sendOtp(login, otp) {
 
 
 // ================= REGISTER =================
+// exports.register = async (req, res) => {
+//   const { login, password, name, position, birthDate, phone } = req.body;
+
+//   if (!login || !password || !name || !position || !birthDate || !phone) {
+//     return res.status(400).json({ error: 'Brak danych' });
+//   }
+
+//   const exists = await User.findOne({ login });
+//   if (exists) return res.status(400).json({ error: 'Login już istnieje' });
+
+//   const otp = crypto.randomInt(100000, 999999).toString();
+
+//   const user = new User({
+//     login,
+//     name,
+//     position,
+//     birthDate: new Date(birthDate),
+//     phone,
+//     password: await bcrypt.hash(password, 10),
+//     role: 'ADMIN',
+//     permissions: {
+//       canAddSuppliers: true,
+//       canAddProducts: true,
+//       readOnly: false
+//     },
+//     otp,
+//     otpExpires: new Date(Date.now() + 10 * 60 * 1000),
+//   });
+
+//   await user.save();
+//   user.owner = user._id;
+//   await user.save();
+
+//   // 🔹 Wyślij OTP (do konsoli w dev)
+//   sendOtp(login, otp);
+
+//   // 🔹 Zwróć OTP do frontu tylko w dev
+//   res.status(201).json({ requireOtp: true, otp }); 
+// };
+
+
 exports.register = async (req, res) => {
-  const { login, password, name, position, birthDate, phone } = req.body;
+  try {
+    const { login, password, name, position, birthDate, phone } = req.body;
+    if (!login || !password || !name || !position || !birthDate || !phone) {
+      return res.status(400).json({ error: 'Brak danych' });
+    }
 
-  if (!login || !password || !name || !position || !birthDate || !phone) {
-    return res.status(400).json({ error: 'Brak danych' });
+    const exists = await User.findOne({ login });
+    if (exists) return res.status(400).json({ error: 'Login już istnieje' });
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    const user = new User({
+      login,
+      name,
+      position,
+      birthDate: new Date(birthDate),
+      phone,
+      password: await bcrypt.hash(password, 10),
+      role: 'ADMIN',
+      permissions: { canAddSuppliers: true, canAddProducts: true, readOnly: false },
+      otp,
+      otpExpires: new Date(Date.now() + 10*60*1000),
+    });
+
+    await user.save();
+    user.owner = user._id;
+    await user.save();
+
+    sendOtp(login, otp);
+    res.status(201).json({ requireOtp: true, otp });
+
+  } catch (err) {
+    console.error('[REGISTER ERROR]', err);
+    res.status(500).json({ error: err.message });
   }
-
-  const exists = await User.findOne({ login });
-  if (exists) return res.status(400).json({ error: 'Login już istnieje' });
-
-  const otp = crypto.randomInt(100000, 999999).toString();
-
-  const user = new User({
-    login,
-    name,
-    position,
-    birthDate: new Date(birthDate),
-    phone,
-    password: await bcrypt.hash(password, 10),
-    role: 'ADMIN',
-    permissions: {
-      canAddSuppliers: true,
-      canAddProducts: true,
-      readOnly: false
-    },
-    otp,
-    otpExpires: new Date(Date.now() + 10 * 60 * 1000),
-  });
-
-  await user.save();
-  user.owner = user._id;
-  await user.save();
-
-  // 🔹 Wyślij OTP (do konsoli w dev)
-  sendOtp(login, otp);
-
-  // 🔹 Zwróć OTP do frontu tylko w dev
-  res.status(201).json({ requireOtp: true, otp }); 
 };
+
 
 // ================= LOGIN =================
 exports.login = async (req, res) => {
