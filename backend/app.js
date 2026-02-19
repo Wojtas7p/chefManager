@@ -27,6 +27,9 @@ app.use('/api/schedule', require('./routes/schedule'));
 app.use('/api/timeoff', require('./routes/timeOff'));
 app.use('/api/chat-groups', require('./routes/chatGroups'));
 
+const User = require('./models/User');
+
+User.init().then(() => console.log('User indexes ensured'));
 
 // DB
 mongoose.connect(process.env.MONGO_URI)
