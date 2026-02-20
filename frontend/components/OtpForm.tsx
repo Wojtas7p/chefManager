@@ -211,7 +211,7 @@ export default function OtpForm({
   type="button"
   onClick={async () => {
     try {
-      const res = await fetch("/api/resend-otp", {
+      const res = await fetch("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ login })
