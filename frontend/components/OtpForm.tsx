@@ -204,24 +204,30 @@ export default function OtpForm({
           Zaufaj temu urządzeniu
         </label>
 
-        <button
+       
+
+
+       <button
+  type="button"
   onClick={async () => {
     try {
-      await fetch("/api/resend-otp", {
+      const res = await fetch("/api/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ login }),
+        body: JSON.stringify({ login })
       });
-      alert("Kod OTP został wysłany ponownie!");
-    } catch (err) {
-      console.error(err);
-      alert("Błąd wysyłki OTP");
+      if (!res.ok) throw new Error("Nie udało się wysłać OTP");
+      alert("Kod został wysłany ponownie!");
+    } catch (e: any) {
+      alert(e.message);
     }
   }}
-  className="mt-2 text-blue-600 underline"
+  className="mt-3 text-sm text-blue-600 hover:underline"
 >
   Wyślij ponownie kod
 </button>
+
+
 
 
         <button onClick={submit} className="button-form hover:bg-[#32A293]">
