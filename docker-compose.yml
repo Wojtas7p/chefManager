@@ -65,7 +65,7 @@ services:
 
   backend:
     env_file:
-     - ./backend/.env 
+     - .env 
     build: ./backend
     container_name: backend
     restart: always
