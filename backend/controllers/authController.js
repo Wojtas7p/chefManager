@@ -197,34 +197,39 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 // Funkcja wysyłki OTP – dev vs prod
-async function sendOtp(toEmail, otp) {
-  if (process.env.NODE_ENV === 'production') {
+// controllers/authController.js
+exports.resendOtp = async (req, res) => {
+  try {
+    const { login } = req.body;
+    const user = await User.findOne({ login });
+    if (!user) return res.status(404).json({ error: "Użytkownik nie istnieje" });
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 10*60*1000);
+    await user.save();
+
+    let emailError = null;
+
     try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT),
-        secure: false,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-
-      await transporter.sendMail({
-        from: `"FlowGastro" <${process.env.SMTP_USER}>`,
-        to: toEmail,
-        subject: "Twój kod weryfikacyjny",
-        text: `Twój kod OTP to: ${otp} (ważny 10 minut)`,
-      });
-
-      console.log(`🔹 OTP wysłany na ${toEmail}`);
-    } catch (e) {
-      console.error("Błąd wysyłki OTP:", e);
+      await sendOtp(user.email, otp); // upewnij się, że user.email istnieje
+    } catch (err) {
+      console.error("Błąd wysyłki OTP:", err);
+      emailError = "Nie udało się wysłać maila. Sprawdź konfigurację SMTP.";
     }
-  } else {
-    console.log(`[OTP DEV] ${toEmail}: ${otp}`);
+
+    res.json({
+      success: true,
+      otp: process.env.NODE_ENV === 'development' ? otp : undefined,
+      emailError,
+    });
+
+  } catch (err) {
+    console.error("[RESEND OTP ERROR]", err);
+    res.status(500).json({ error: err.message });
   }
-}
+};
+
 
 
 // ================= RESEND OTP =================
