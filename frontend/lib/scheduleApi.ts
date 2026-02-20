@@ -3,7 +3,7 @@
 
 import { Schedule } from '@/types/schedule';
 
-const API =  "/api";
+const API = process.env.NEXT_PUBLIC_BACKEND_URL + "/api";
 
 export async function getSchedule(month: string): Promise<Schedule | null> {
   const res = await fetch(`${API}/schedule?month=${month}`, {
