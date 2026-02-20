@@ -82,7 +82,7 @@ services:
     container_name: frontend
     restart: always
     environment:
-      NEXT_PUBLIC_BACKEND_URL: "http://backend:5000" # lub backend:5000 w Docker sieci
+      NEXT_PUBLIC_BACKEND_URL: "" # lub backend:5000 w Docker sieci
     ports:
       - "3000:3000"
     depends_on:
