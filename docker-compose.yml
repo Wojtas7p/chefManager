@@ -32,7 +32,7 @@ services:
     container_name: frontend
     restart: always
     env_file:
-    - ./env    
+    - .env    
     environment:
       NEXT_PUBLIC_BACKEND_URL: "" # lub backend:5000 w Docker sieci
     ports:
