@@ -1,54 +1,4 @@
-# version: "3.9"
 
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: mongo
-#     restart: always
-#     volumes:
-#       - mongo_data:/data/db
-#     ports:
-#       - "27017:27017"  
-
-#   backend:
-#     build: ./backend
-#     container_name: backend
-#     restart: always
-#     environment:
-#       MONGO_URI: "mongodb://mongo:27017/chefmanager"
-#     ports:
-#       - "5000:5000"
-#     depends_on:
-#       - mongo
-
-#   frontend:
-#     build: ./frontend
-#     container_name: frontend
-#     restart: always
-#     environment:
-#       # NEXT_PUBLIC_BACKEND_URL: "http://backend:5000"
-#       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
-#     ports:
-#       - "3000:3000"
-#     depends_on:
-#       - backend
-
-#   nginx:
-#     image: nginx:latest
-#     container_name: nginx
-#     restart: always
-#     ports:
-#       - "80:80"
-#       - "443:443"
-#     volumes:
-#       - ./nginx/conf.d:/etc/nginx/conf.d
-#       - ./nginx/certbot/conf:/etc/letsencrypt
-#       - ./nginx/certbot/www:/var/www/certbot
-#     depends_on:
-#       - frontend
-
-# volumes:
-#   mongo_data:
 
 
 version: "3.9"
@@ -81,6 +31,8 @@ services:
     build: ./frontend
     container_name: frontend
     restart: always
+    env_file:
+    - ./env    
     environment:
       NEXT_PUBLIC_BACKEND_URL: "" # lub backend:5000 w Docker sieci
     ports:
