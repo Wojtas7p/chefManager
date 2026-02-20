@@ -199,29 +199,56 @@ const nodemailer = require('nodemailer');
 // Funkcja wysyłki OTP – dev vs prod
 async function sendOtp(toEmail, otp) {
   if (process.env.NODE_ENV === 'production') {
-    // produkcja – wysyłka maila
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
 
-    await transporter.sendMail({
-      from: `"FlowGastro" <${process.env.SMTP_USER}>`,
-      to: toEmail,
-      subject: "Twój kod weryfikacyjny",
-      text: `Twój kod OTP to: ${otp} (ważny 10 minut)`,
-    });
+      await transporter.sendMail({
+        from: `"FlowGastro" <${process.env.SMTP_USER}>`,
+        to: toEmail,
+        subject: "Twój kod weryfikacyjny",
+        text: `Twój kod OTP to: ${otp} (ważny 10 minut)`,
+      });
 
+      console.log(`🔹 OTP wysłany na ${toEmail}`);
+    } catch (e) {
+      console.error("Błąd wysyłki OTP:", e);
+    }
   } else {
-    // dev – log do konsoli
     console.log(`[OTP DEV] ${toEmail}: ${otp}`);
   }
 }
+
+
+// ================= RESEND OTP =================
+exports.resendOtp = async (req, res) => {
+  try {
+    const { login } = req.body;
+    const user = await User.findOne({ login });
+    if (!user) return res.status(404).json({ error: "Użytkownik nie istnieje" });
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await sendOtp(login, otp);
+
+    res.json({ success: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+  } catch (err) {
+    console.error("[RESEND OTP ERROR]", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 
 // ================= REGISTER =================
 exports.register = async (req, res) => {
