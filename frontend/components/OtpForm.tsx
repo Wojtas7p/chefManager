@@ -207,7 +207,7 @@ export default function OtpForm({
        
 
 
-       <button
+       {/* <button
   type="button"
   onClick={async () => {
     try {
@@ -226,6 +226,35 @@ export default function OtpForm({
 >
   Wyślij ponownie kod
 </button>
+ */}
+
+
+
+<button
+  type="button"
+  onClick={async () => {
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Nie udało się wysłać OTP");
+      if (data.emailError) setError(data.emailError);
+      else setError("Kod został wysłany ponownie!");
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }}
+  className="mt-3 text-sm text-blue-600 hover:underline"
+>
+  Wyślij ponownie kod
+</button>
+
+{error && <p className="err-form">{error}</p>}
+
 
 
 

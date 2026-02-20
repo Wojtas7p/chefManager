@@ -190,13 +190,209 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const User = require('../models/User');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
+// const crypto = require('crypto');
+// const nodemailer = require('nodemailer');
+
+// async function sendOtp(toEmail, otp) {
+//   if (process.env.NODE_ENV === 'production') {
+//     try {
+//       const transporter = nodemailer.createTransport({
+//         host: process.env.SMTP_HOST,
+//         port: parseInt(process.env.SMTP_PORT),
+//         secure: false,
+//         requireTLS: true,
+//         auth: {
+//           user: process.env.SMTP_USER,
+//           pass: process.env.SMTP_PASS,
+//         },
+//       });
+
+//       await transporter.sendMail({
+//         from: `"FlowGastro" <${process.env.SMTP_USER}>`,
+//         to: toEmail,
+//         subject: "Twój kod weryfikacyjny",
+//         text: `Twój kod OTP to: ${otp} (ważny 10 minut)`,
+//       });
+
+//       console.log(`🔹 OTP wysłany na ${toEmail}`);
+//     } catch (err) {
+//       console.error("Błąd wysyłki OTP:", err);
+//       throw err; // żeby backend wiedział, że nie wysłano maila
+//     }
+//   } else {
+//     // dev – log w konsoli
+//     console.log(`[OTP DEV] ${toEmail}: ${otp}`);
+//   }
+// }
+
+
+
+
+
+
+
+
+// // ================= RESEND OTP =================
+// exports.resendOtp = async (req, res) => {
+//   try {
+//     const { login } = req.body;
+//     const user = await User.findOne({ login });
+//     if (!user) return res.status(404).json({ error: "Użytkownik nie istnieje" });
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+//     user.otp = otp;
+//     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+//     await user.save();
+
+//     await sendOtp(login, otp);
+
+//     res.json({ success: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+//   } catch (err) {
+//     console.error("[RESEND OTP ERROR]", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+
+// // ================= REGISTER =================
+// exports.register = async (req, res) => {
+//   try {
+//     const { login, password, name, position, birthDate, phone } = req.body;
+//     if (!login || !password || !name || !position || !birthDate || !phone) {
+//       return res.status(400).json({ error: 'Brak danych' });
+//     }
+
+//     const exists = await User.findOne({ login });
+//     if (exists) return res.status(400).json({ error: 'Login już istnieje' });
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+
+//     const user = new User({
+//       login,
+//       name,
+//       position,
+//       birthDate: new Date(birthDate),
+//       phone,
+//       password: await bcrypt.hash(password, 10),
+//       role: 'ADMIN',
+//       permissions: { canAddSuppliers: true, canAddProducts: true, readOnly: false },
+//       otp,
+//       otpExpires: new Date(Date.now() + 10 * 60 * 1000),
+//     });
+
+//     await user.save();
+//     user.owner = user._id;
+//     await user.save();
+
+//     // wysyłka OTP
+//     await sendOtp(login, otp);
+
+//     res.status(201).json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+
+//   } catch (err) {
+//     console.error('[REGISTER ERROR]', err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+// // ================= LOGIN =================
+// exports.login = async (req, res) => {
+//   const { login, password, deviceId } = req.body;
+
+//   const user = await User.findOne({ login });
+//   if (!user) return res.status(401).json({ error: 'Błąd logowania' });
+
+//   const ok = await bcrypt.compare(password, user.password);
+//   if (!ok) return res.status(401).json({ error: 'Błąd logowania' });
+
+//   const trusted = user.trustedDevices.some(d => d.deviceId === deviceId);
+//   if (trusted) {
+//     const token = jwt.sign({
+//       userId: user._id,
+//       owner: user.owner,
+//       role: user.role,
+//       permissions: user.permissions,
+//       name: user.name,
+//     }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+//     return res.json({ token });
+//   }
+
+//   const otp = crypto.randomInt(100000, 999999).toString();
+//   user.otp = otp;
+//   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+//   await user.save();
+
+//   await sendOtp(login, otp);
+
+//   res.json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+// };
+
+// // ================= VERIFY OTP =================
+// exports.verifyOtp = async (req, res) => {
+//   const { login, otp, trustDevice, deviceId } = req.body;
+
+//   const user = await User.findOne({ login });
+//   if (!user) return res.status(401).json({ error: 'Błąd' });
+
+//   if (!user.otp || user.otp !== otp || user.otpExpires < new Date()) {
+//     return res.status(401).json({ error: 'Zły kod' });
+//   }
+
+//   user.otp = null;
+//   user.otpExpires = null;
+
+//   if (trustDevice && deviceId) {
+//     user.trustedDevices.push({ deviceId });
+//   }
+
+//   await user.save();
+
+//   const token = jwt.sign({
+//     userId: user._id,
+//     owner: user.owner,
+//     role: user.role,
+//     permissions: user.permissions,
+//     name: user.name,
+//   }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+//   res.json({ token });
+// };
+
+
+
+
+
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
+// ================= FUNKCJA WYSYŁKI OTP =================
 async function sendOtp(toEmail, otp) {
+  console.log(`🔹 Próbuję wysłać OTP na: ${toEmail} z kodem ${otp}`);
+
   if (process.env.NODE_ENV === 'production') {
     try {
       const transporter = nodemailer.createTransport({
@@ -210,30 +406,23 @@ async function sendOtp(toEmail, otp) {
         },
       });
 
-      await transporter.sendMail({
+      const info = await transporter.sendMail({
         from: `"FlowGastro" <${process.env.SMTP_USER}>`,
         to: toEmail,
         subject: "Twój kod weryfikacyjny",
         text: `Twój kod OTP to: ${otp} (ważny 10 minut)`,
       });
 
-      console.log(`🔹 OTP wysłany na ${toEmail}`);
+      console.log("✅ Email wysłany:", info.response);
+      return info;
     } catch (err) {
-      console.error("Błąd wysyłki OTP:", err);
-      throw err; // żeby backend wiedział, że nie wysłano maila
+      console.error("❌ Błąd wysyłki OTP:", err);
+      throw err; // rzucamy, żeby backend zwrócił info
     }
   } else {
-    // dev – log w konsoli
-    console.log(`[OTP DEV] ${toEmail}: ${otp}`);
+    console.log("[OTP DEV] ", toEmail, otp);
   }
 }
-
-
-
-
-
-
-
 
 // ================= RESEND OTP =================
 exports.resendOtp = async (req, res) => {
@@ -247,16 +436,23 @@ exports.resendOtp = async (req, res) => {
     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    await sendOtp(login, otp);
+    let emailError = null;
+    try {
+      await sendOtp(user.login, otp);
+    } catch (e) {
+      emailError = "Nie udało się wysłać maila. Sprawdź konfigurację SMTP.";
+    }
 
-    res.json({ success: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+    res.json({
+      success: true,
+      otp: process.env.NODE_ENV === 'development' ? otp : undefined,
+      emailError,
+    });
   } catch (err) {
     console.error("[RESEND OTP ERROR]", err);
     res.status(500).json({ error: err.message });
   }
 };
-
-
 
 // ================= REGISTER =================
 exports.register = async (req, res) => {
@@ -288,10 +484,14 @@ exports.register = async (req, res) => {
     user.owner = user._id;
     await user.save();
 
-    // wysyłka OTP
-    await sendOtp(login, otp);
+    let emailError = null;
+    try {
+      await sendOtp(user.login, otp);
+    } catch (e) {
+      emailError = "Nie udało się wysłać maila. Sprawdź konfigurację SMTP.";
+    }
 
-    res.status(201).json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+    res.status(201).json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined, emailError });
 
   } catch (err) {
     console.error('[REGISTER ERROR]', err);
@@ -327,9 +527,14 @@ exports.login = async (req, res) => {
   user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
   await user.save();
 
-  await sendOtp(login, otp);
+  let emailError = null;
+  try {
+    await sendOtp(login, otp);
+  } catch (e) {
+    emailError = "Nie udało się wysłać maila. Sprawdź konfigurację SMTP.";
+  }
 
-  res.json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined });
+  res.json({ requireOtp: true, otp: process.env.NODE_ENV === 'development' ? otp : undefined, emailError });
 };
 
 // ================= VERIFY OTP =================
