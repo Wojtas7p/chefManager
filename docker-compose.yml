@@ -33,8 +33,7 @@ services:
     restart: always
     env_file:
     - .env    
-    environment:
-      NEXT_PUBLIC_BACKEND_URL: "" # lub backend:5000 w Docker sieci
+    
     ports:
       - "3000:3000"
     depends_on:
