@@ -30,24 +30,54 @@ export default function OtpForm({
     }
   }, [otpDev, login]);
 
-  async function submit() {
-    setError(null);
-    const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
-    localStorage.setItem("deviceId", deviceId);
-
-    try {
-      const data = await verifyOtp({
-        login,
-        otp,
-        trustDevice: trust,
-        deviceId,
-      });
-
-      loginUser(data.token);
-    } catch (err: any) {
-      setError(err.message);
-    }
+  function generateDeviceId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
   }
+  // fallback dla VPS / starszych środowisk
+  return "dev-" + Math.random().toString(36).substring(2) + Date.now();
+}
+
+  // async function submit() {
+  //   setError(null);
+  //   const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
+  //   localStorage.setItem("deviceId", deviceId);
+
+  //   try {
+  //     const data = await verifyOtp({
+  //       login,
+  //       otp,
+  //       trustDevice: trust,
+  //       deviceId,
+  //     });
+
+  //     loginUser(data.token);
+  //   } catch (err: any) {
+  //     setError(err.message);
+  //   }
+  // }
+  async function submit() {
+  setError(null);
+
+  let deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) {
+    deviceId = generateDeviceId();
+    localStorage.setItem("deviceId", deviceId);
+  }
+
+  try {
+    const data = await verifyOtp({
+      login,
+      otp,
+      trustDevice: trust,
+      deviceId,
+    });
+
+    loginUser(data.token);
+  } catch (err: any) {
+    setError(err.message);
+  }
+}
 
   return (
     <main className="main flex">
