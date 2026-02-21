@@ -21,6 +21,9 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+// test url
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
 
 // routes
 app.use('/api/auth', require('./routes/auth'));

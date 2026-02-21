@@ -1,6 +1,6 @@
 // suppliersApi.ts
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL + "/api";
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || "/api";
 
 export async function apiFetch(
   endpoint: string,
