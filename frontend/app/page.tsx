@@ -15,7 +15,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (user) {
-      router.replace("/dashboard"); // automatyczne przekierowanie jeśli zalogowany
+      router.replace("/dashboard"); 
     }
   }, [user, router]);
 

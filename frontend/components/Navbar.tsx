@@ -10,6 +10,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const isHome = pathname === "/";
+  
 
   return (
 
@@ -60,10 +61,13 @@ export default function Navbar() {
 )}
 
       {user && (
-        <div>
-          <Link href="/dashboard">Panel</Link>
-          <Link href="/dashboard/users">Użytkownicy</Link>
-          <button onClick={logout}>Wyloguj</button>
+        <div className=" flex gap-6 ml-auto bg-gray-100 text-[#2E8A80] font-semibold rotait-30 relative -top-5 -right-2 py-3
+        animate-fadeIn w-80  z-20 input-form  px-10
+    backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 ">
+           
+          <Link className="opacity-80 hover:opacity-100" href="/dashboard">Panel</Link>
+          <Link className="opacity-80 hover:opacity-100" href="/dashboard/users">Użytkownicy</Link>
+          <button className="opacity-80 hover:opacity-100" onClick={logout}>Wyloguj</button>
         </div>
       )}
     </nav>
