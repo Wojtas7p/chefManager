@@ -1,25 +1,24 @@
 
-
-
-version: "3.9"
-
 services:
   mongo:
     image: mongo:7
     container_name: mongo
     restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: wojtas7p
+      MONGO_INITDB_ROOT_PASSWORD: NINJApanek7&
     volumes:
       - mongo_data:/data/db
 
   backend:
     env_file:
-     - .env 
+      - .env
     build: ./backend
     container_name: backend
     restart: always
     environment:
       PORT: 5000
-      MONGO_URI: "mongodb://mongo:27017/chefmanager"
+      MONGO_URI: mongodb://wojtas7p:TWOJE_HASLO@mongo:27017/chefmanager?authSource=admin
     ports:
       - "127.0.0.1:5000:5000"
     depends_on:
@@ -30,8 +29,7 @@ services:
     container_name: frontend
     restart: always
     env_file:
-    - .env    
-    
+      - .env
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
