@@ -2,86 +2,134 @@
 
 Architektóra:
 
-  Engineering thesis/
+  CHAFMANAGER/
 │
 ├── README.md
 ├── .gitignore
-├── docs/                   # dokumentacja, notatki, diagramy
-│   └── .env
-|
-
-
-
-
-
-├── frontend/               # front-end (np. Next.js)
+├── .env/                                  # klucze aplikacji          
+├── .gitignore                             # pliki ignorowane na githubie
+├── docker-compose.yml                     # konfiguracja docera
+├── nginx   
+│     ├── conf.d
+│           ├── flowgastro.yml             # konfiguracja servera
+│ 
+├── frontend/                              # front-end (np. Next.js)
 │   ├── app/
-│   │   ├── auth
+│   │   ├── auth                         
 │   │   │    ├── login
-│   │   │    |     └── page.tsx
+│   │   │    |     └── page.tsx            # strony logowania 
 │   │   │    ├── otp
-│   │   │    |     └── page.tsx
+│   │   │    |     └── page.tsx            # strony podwujnej weryfikacji 
 │   │   │    ├── register
-│   │   │    |     └── page.tsx
+│   │   │    |     └── page.tsx            # strony rejestracji 
 │   │   │    └── page.tsx
 │   │   │ 
-│   │   ├── dashboaed
+│   │   ├── dashboaed               
+│   │   │    ├── chat
+│   │   │    │     └── page.tsx             # strony rejestracji 
+│   │   │    ├── shedule
+│   │   │    │     └── page.tsx             # strony rejestracji 
+│   │   │    ├── suppliers
+│   │   │    │     └── page.tsx             # strony rejestracji 
 │   │   │    ├── users
-│   │   │    │     └── page.tsx
-│   │   │    └── page.tsx
+│   │   │    │     └── page.tsx              # strony rejestracji 
+│   │   │    ├── usersList
+│   │   │    │     └── page.tsx             # strony rejestracji 
+│   │   │    │   
+│   │   │    └── page.tsx                    # strony wyboru rejestracji lub logowania
 │   │   │ 
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx
+│   │   ├── globals.css                      # główne style stron
+│   │   ├── layout.tsx                       # układ stron
+│   │   └── page.tsx                         # główna strona stron
 │   │ 
 │   ├── components/
+│   │   │    ├── chat                         # Komponenty strony chat
+│   │   │    │     └── ChatBox.tsx            
+│   │   │    │     └── ChatImput.tsx    
+│   │   │    │     └── ChatPage.tsx    
+│   │   │    │     └── ChatUsersList.tsx    
+│   │   │    │     └── GrupsManager.tsx    
+│   │   │    ├── home                          # Komponenty strony głównej
+│   │   │    │     └── ContentSection.tsx  
+│   │   │    │     └── FooterSection.tsx 
+│   │   │    │     └── HeaderSection.tsx 
+│   │   │    │     └── MainSection.tsx    
+│   │   │    ├── products                      # Komponenty strony z produktami
+│   │   │    │     └── ProductForm.tsx   
+│   │   │    │     └── ProductList.tsx    
+│   │   │    ├── schedule                      # Komponenty strony z grafikiem
+│   │   │    │     └── ScheduleGrid.tsx     
+│   │   │    │     └── ScheduleManager.tsx 
+│   │   │    ├── suppliers                     # Komponenty strony z dostawcami
+│   │   │    │     └── SupplierForm.tsx        
+│   │   │    │     └── SupplierList.tsx  
 │   │   ├── NavBar.tsx
 │   │   └── OtpForm.tsx  
 │   │
 │   ├── context/
-│   │   └── AuthContext.tsx
-│   ├── lib/
+│   │   └── AuthContext.tsx                     # kontekst autoryzacji
+│   ├── lib/                                    # Api do podstron
 │   │   ├── api.ts
+│   │   ├── calendar.ts
+│   │   ├── charApi.ts
+│   │   ├── expertElement.ts
+│   │   ├── phoneCodes.ts
+│   │   ├── scheduleApi.ts
+│   │   ├── suppliers.ts
 │   │   └── validators.ts
-│   ├── public/
-|   ├── types
+│   ├── public/                            # Komponenty graficzne do strony
+|   ├── types                              # typy do komponentów 
 │   |   ├── auth.ts
-│   |   ├── dto.ts
-|   |   ├── forms.d.ts
+│   |   ├── chat.ts
+│   |   ├── oto.ts
+│   |   ├── forms.ts
+│   |   ├── products.ts
+│   |   ├── shedule.ts
+|   |   ├── suppliers.ts
 │   |   └── user.ts
 |   |
-│   └── package.json
-
-
-
-
-
-
-├── 
-├── 
-├── 
-├── 
-├── 
-└── 
-└── 
-└── 
-└── 
-
-
-
-
-├── backend/                # back-end (np. Node.js/Express, Python Flask)
+│   └── package.json                       
+│
+│
+├── backend/                               # back-end (np. Node.js/Express, Python Flask)
 │   ├── package.json
 │   ├── server.js / app.js
-│   ├── routes/
-│   ├── controllers/
-│   ├── models/             # modele MongoDB
+│   ├── routes/                            # routing backendu 
+|   |   ├── auth.ts
+|   |   ├── chat.ts
+|   |   ├── chatGroups.ts
+|   |   ├── products.ts
+|   |   ├── shedule.ts
+|   |   ├── suppliers.ts                          
+|   |   ├── timeOff.ts
+│   |   └── users.ts
+│   ├── controllers/                       #  kontrolery 
+|   |   ├── authController.ts
+|   |   ├── chatController.ts
+|   |   ├── chatGroupsController.ts
+|   |   ├── productsController.ts
+|   |   ├── sheduleController.ts
+|   |   ├── suppliersController.ts                          
+|   |   ├── timeOffController.ts
+│   |   └── usersController.ts
+│   ├── controllers/                       #  kontrolery 
+|   |   ├── auth.ts
+|   |   ├── featureGate.ts
+|   |   ├── permissions.ts
+│   |   └── shedulePermissions.ts
+│   ├── models/                            # modele MongoDB
+|   |   ├── chatGroups.ts
+|   |   ├── Massage.ts
+|   |   ├── Products.ts
+|   |   ├── Shedule.ts
+|   |   ├── Suppliers.d.ts                          
+|   |   ├── TimeOff.ts
+│   |   └── Users.ts
 │   ├── services/           # logika pobierania API zewnętrznych
 │   ├── config/             # konfiguracja (MongoDB URI, API keys)
+│   |   └── db.ts
 │   └── utils/              # helpery, np. do obsługi błędów
-│
-├── database/               # np. skrypty MongoDB, backup, seed
-│
+├── app.js                  # główny plik backendu
 └── scripts/                # narzędzia developerskie (build, deploy)
 
 
