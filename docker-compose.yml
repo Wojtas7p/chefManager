@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: wojtas7p
-      MONGO_INITDB_ROOT_PASSWORD: NINJApanek7&
+      MONGO_INITDB_ROOT_PASSWORD: NINJApanek7
     volumes:
       - mongo_data:/data/db
 
